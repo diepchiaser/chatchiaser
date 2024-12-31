@@ -67,9 +67,9 @@ export async function POST(request: Request) {
     }
 
     // Return the final response
-    return new Response(JSON.stringify(taskResponse.gpt), {
+    return new Response(taskResponse.gpt, {
       status: 200,
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/text" }
     })
   } catch (error: any) {
     const errorMessage = error.message || "An unexpected error occurred"
