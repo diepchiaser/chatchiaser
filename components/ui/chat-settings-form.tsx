@@ -226,7 +226,9 @@ const AdvancedContent: FC<AdvancedContentProps> = ({
 
         <Select
           value={chatSettings.embeddingsProvider}
-          onValueChange={(embeddingsProvider: "openai" | "local") => {
+          onValueChange={(
+            embeddingsProvider: "openai" | "local" | "gpt4free"
+          ) => {
             onChangeChatSettings({
               ...chatSettings,
               embeddingsProvider
@@ -245,6 +247,8 @@ const AdvancedContent: FC<AdvancedContentProps> = ({
             {window.location.hostname === "localhost" && (
               <SelectItem value="local">Local</SelectItem>
             )}
+
+            <SelectItem value="gpt4free">Gpt4free</SelectItem>
           </SelectContent>
         </Select>
       </div>

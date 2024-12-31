@@ -12,6 +12,13 @@ import { Input } from "../ui/input"
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 import { ModelIcon } from "./model-icon"
 import { ModelOption } from "./model-option"
+import {
+  MISTRAL,
+  MISTRAL_LARGE,
+  OPENAI
+} from "@/lib/models/llm/pollination-llm-list"
+import { CLAUDE_SONNET_B, OPENAI_B } from "@/lib/models/llm/blackbox-llm-list"
+import { CHATGPT4 } from "@/lib/models/llm/aryahcr-llm-list"
 
 interface ModelSelectProps {
   selectedModelId: string
@@ -27,7 +34,8 @@ export const ModelSelect: FC<ModelSelectProps> = ({
     models,
     availableHostedModels,
     availableLocalModels,
-    availableOpenRouterModels
+    availableOpenRouterModels,
+    chatSettings
   } = useContext(ChatbotUIContext)
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -50,23 +58,46 @@ export const ModelSelect: FC<ModelSelectProps> = ({
     setIsOpen(false)
   }
 
-  const allModels = [
-    ...models.map(model => ({
-      modelId: model.model_id as LLMID,
-      modelName: model.name,
-      provider: "custom" as ModelProvider,
-      hostedId: model.id,
-      platformLink: "",
-      imageInput: false
-    })),
-    ...availableHostedModels,
-    ...availableLocalModels,
-    ...availableOpenRouterModels
-  ]
+  const getModelsForProvider = (chatSettings, models) => {
+    const GPT4FREE_MODELS = [
+      OPENAI,
+      MISTRAL,
+      MISTRAL_LARGE,
+      OPENAI_B,
+      CLAUDE_SONNET_B,
+      CHATGPT4
+    ]
+
+    const formatCustomModels = models => {
+      return models.map(model => ({
+        modelId: model.model_id as LLMID,
+        modelName: model.name,
+        provider: "custom" as ModelProvider,
+        hostedId: model.id,
+        platformLink: "",
+        imageInput: false
+      }))
+    }
+
+    const STANDARD_MODELS = [
+      ...formatCustomModels(models),
+      ...availableHostedModels,
+      ...availableLocalModels,
+      ...availableOpenRouterModels
+    ]
+
+    return chatSettings.embeddingsProvider === "gpt4free" ||
+      chatSettings.embeddingsProvider === "local"
+      ? GPT4FREE_MODELS
+      : STANDARD_MODELS
+  }
+
+  const allModels = getModelsForProvider(chatSettings, models)
+  console.log(allModels)
 
   const groupedModels = allModels.reduce<Record<string, LLM[]>>(
     (groups, model) => {
-      const key = model.provider
+      const key = model?.provider
       if (!groups[key]) {
         groups[key] = []
       }
@@ -77,7 +108,7 @@ export const ModelSelect: FC<ModelSelectProps> = ({
   )
 
   const selectedModel = allModels.find(
-    model => model.modelId === selectedModelId
+    model => model?.modelId === selectedModelId
   )
 
   if (!profile) return null
@@ -154,12 +185,13 @@ export const ModelSelect: FC<ModelSelectProps> = ({
           {Object.entries(groupedModels).map(([provider, models]) => {
             const filteredModels = models
               .filter(model => {
-                if (tab === "hosted") return model.provider !== "ollama"
-                if (tab === "local") return model.provider === "ollama"
-                if (tab === "openrouter") return model.provider === "openrouter"
+                if (tab === "hosted") return model?.provider !== "ollama"
+                if (tab === "local") return model?.provider === "ollama"
+                if (tab === "openrouter")
+                  return model?.provider === "openrouter"
               })
               .filter(model =>
-                model.modelName.toLowerCase().includes(search.toLowerCase())
+                model?.modelName.toLowerCase().includes(search.toLowerCase())
               )
               .sort((a, b) => a.provider.localeCompare(b.provider))
 
@@ -177,17 +209,17 @@ export const ModelSelect: FC<ModelSelectProps> = ({
                   {filteredModels.map(model => {
                     return (
                       <div
-                        key={model.modelId}
+                        key={model?.modelId}
                         className="flex items-center space-x-1"
                       >
-                        {selectedModelId === model.modelId && (
+                        {selectedModelId === model?.modelId && (
                           <IconCheck className="ml-2" size={32} />
                         )}
 
                         <ModelOption
-                          key={model.modelId}
+                          key={model?.modelId}
                           model={model}
-                          onSelect={() => handleSelectModel(model.modelId)}
+                          onSelect={() => handleSelectModel(model?.modelId)}
                         />
                       </div>
                     )

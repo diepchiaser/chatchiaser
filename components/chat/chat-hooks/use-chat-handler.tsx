@@ -21,6 +21,8 @@ import {
   processResponse,
   validateChatSettings
 } from "../chat-helpers"
+import { POLLINATION_LLM_LIST } from "@/lib/models/llm/pollination-llm-list"
+import { GPT4FREE_LLM_LIST } from "@/lib/models/llm/gpt4free-llm-list"
 
 export const useChatHandler = () => {
   const router = useRouter()
@@ -204,8 +206,9 @@ export const useChatHandler = () => {
 
       const newAbortController = new AbortController()
       setAbortController(newAbortController)
+      let modelData
 
-      const modelData = [
+      modelData = [
         ...models.map(model => ({
           modelId: model.model_id as LLMID,
           modelName: model.name,
@@ -218,6 +221,17 @@ export const useChatHandler = () => {
         ...availableLocalModels,
         ...availableOpenRouterModels
       ].find(llm => llm.modelId === chatSettings?.model)
+
+      // if model is undefined, return model in chatSettings
+      if (
+        chatSettings &&
+        (chatSettings.embeddingsProvider === "gpt4free" ||
+          chatSettings.embeddingsProvider === "local")
+      ) {
+        modelData = GPT4FREE_LLM_LIST.find(
+          llm => llm.modelId === chatSettings?.model
+        )
+      }
 
       validateChatSettings(
         chatSettings,

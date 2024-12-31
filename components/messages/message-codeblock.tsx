@@ -37,7 +37,8 @@ export const programmingLanguages: languageMap = {
   shell: ".sh",
   sql: ".sql",
   html: ".html",
-  css: ".css"
+  css: ".css",
+  astro: ".astro"
 }
 
 export const generateRandomString = (length: number, lowercase = false) => {
@@ -116,12 +117,14 @@ export const MessageCodeBlock: FC<MessageCodeBlockProps> = memo(
           customStyle={{
             margin: 0,
             width: "100%",
-            background: "transparent"
+            background: "transparent",
+            padding: "1rem"
           }}
           codeTagProps={{
             style: {
               fontSize: "14px",
-              fontFamily: "var(--font-mono)"
+              fontFamily: "var(--font-mono)",
+              lineHeight: "1.5"
             }
           }}
         >

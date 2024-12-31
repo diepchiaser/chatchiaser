@@ -62,7 +62,7 @@ export const createFileBasedOnExtension = async (
   file: File,
   fileRecord: TablesInsert<"files">,
   workspace_id: string,
-  embeddingsProvider: "openai" | "local"
+  embeddingsProvider: "openai" | "local" | "gpt4free"
 ) => {
   const fileExtension = file.name.split(".").pop()
 
@@ -89,12 +89,15 @@ export const createFile = async (
   file: File,
   fileRecord: TablesInsert<"files">,
   workspace_id: string,
-  embeddingsProvider: "openai" | "local"
+  embeddingsProvider: "openai" | "local" | "gpt4free"
 ) => {
   let validFilename = fileRecord.name.replace(/[^a-z0-9.]/gi, "_").toLowerCase()
   const extension = file.name.split(".").pop()
   const extensionIndex = validFilename.lastIndexOf(".")
-  const baseName = validFilename.substring(0, (extensionIndex < 0) ? undefined : extensionIndex)
+  const baseName = validFilename.substring(
+    0,
+    extensionIndex < 0 ? undefined : extensionIndex
+  )
   const maxBaseNameLength = 100 - (extension?.length || 0) - 1
   if (baseName.length > maxBaseNameLength) {
     fileRecord.name = baseName.substring(0, maxBaseNameLength) + "." + extension
@@ -159,7 +162,7 @@ export const createDocXFile = async (
   file: File,
   fileRecord: TablesInsert<"files">,
   workspace_id: string,
-  embeddingsProvider: "openai" | "local"
+  embeddingsProvider: "openai" | "local" | "gpt4free"
 ) => {
   const { data: createdFile, error } = await supabase
     .from("files")

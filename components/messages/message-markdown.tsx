@@ -36,6 +36,7 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
           }
 
           const match = /language-(\w+)/.exec(className || "")
+          const language = (match && match[1]) || ""
 
           if (
             typeof firstChildAsString === "string" &&
@@ -51,7 +52,7 @@ export const MessageMarkdown: FC<MessageMarkdownProps> = ({ content }) => {
           return (
             <MessageCodeBlock
               key={Math.random()}
-              language={(match && match[1]) || ""}
+              language={language}
               value={String(childArray).replace(/\n$/, "")}
               {...props}
             />
