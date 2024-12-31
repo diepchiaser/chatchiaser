@@ -6,7 +6,7 @@ The open-source AI chat app for everyone.
 
 ## Demo
 
-View the latest demo [here](https://x.com/mckaywrigley/status/1738273242283151777?s=20).
+View the latest demo [here](https://chatbot-ui-gpt4free.vercel.app/).
 
 ## Updates
 
