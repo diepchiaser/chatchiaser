@@ -10,6 +10,9 @@ export type LLMID =
   | PollinationLLMID
   | BlackboxLLMID
   | AryahcrLLMID
+  | AilsLLMID
+  | ZanityLLMID
+  | AirForceLLMID
 
 // OpenAI Models (UPDATED 5/13/24)
 export type OpenAILLMID =
@@ -66,9 +69,20 @@ export type PerplexityLLMID =
 
 export type PollinationLLMID = "mistral" | "mistral-large" | "openai"
 
-export type BlackboxLLMID = "gpt-4o" | "claude-sonnet-3.5"
+export type BlackboxLLMID = "" // No models available
 
-export type AryahcrLLMID = "gpt-4" | "GPT-4-0613"
+export type AryahcrLLMID = "gpt-4o" | "Bing" | "blackbox"
+
+export type AilsLLMID = "" // No models available
+
+export type ZanityLLMID =
+  | "gpt-4o:free"
+  | "gpt-3.5-turbo"
+  | "claude-3.5-sonnet:free"
+  | "deepseek-coder-6.7b"
+  | "deepseek-v2.5"
+
+export type AirForceLLMID = "deepseek-math-7b-instruct" | "openchat-3.5-0106"
 
 export interface LLM {
   modelId: LLMID

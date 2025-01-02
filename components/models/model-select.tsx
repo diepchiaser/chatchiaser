@@ -18,7 +18,17 @@ import {
   OPENAI
 } from "@/lib/models/llm/pollination-llm-list"
 import { CLAUDE_SONNET_B, OPENAI_B } from "@/lib/models/llm/blackbox-llm-list"
-import { CHATGPT4 } from "@/lib/models/llm/aryahcr-llm-list"
+import { BING, BLACKBOX, CHATGPT4o } from "@/lib/models/llm/aryahcr-llm-list"
+import {
+  CLAUDE_3_5_SONNET_FREE,
+  DEEPSEEK_CODER_6_7B,
+  GPT_3_5_TURBO,
+  GPT_4_0_FREE
+} from "@/lib/models/llm/zanity-llm-list"
+import {
+  DEEPSEEK_7B,
+  OPENCHAT_3_5_0106
+} from "@/lib/models/llm/airforce-llm-list"
 
 interface ModelSelectProps {
   selectedModelId: string
@@ -60,13 +70,29 @@ export const ModelSelect: FC<ModelSelectProps> = ({
 
   const getModelsForProvider = (chatSettings, models) => {
     const GPT4FREE_MODELS = [
+      // pollination
       OPENAI,
       MISTRAL,
       MISTRAL_LARGE,
-      OPENAI_B,
-      CLAUDE_SONNET_B,
-      CHATGPT4
+
+      // aryahcr
+      CHATGPT4o,
+      BING,
+      BLACKBOX,
+
+      // zanity
+      GPT_3_5_TURBO,
+      GPT_4_0_FREE,
+      CLAUDE_3_5_SONNET_FREE,
+      DEEPSEEK_CODER_6_7B,
+
+      // airforce
+      DEEPSEEK_7B,
+      OPENCHAT_3_5_0106
     ]
+
+    // display A-Z GPT4Free models
+    GPT4FREE_MODELS.sort((a, b) => a.modelName.localeCompare(b.modelName))
 
     const formatCustomModels = models => {
       return models.map(model => ({

@@ -27,7 +27,9 @@ export async function POST(request: Request) {
       model: chatSettings.model
     }
 
-    const response = await fetch(url + "gpt", {
+    console.log("body", body)
+
+    const response = await fetch(url + "complements", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -66,8 +68,10 @@ export async function POST(request: Request) {
       }
     }
 
+    console.log("taskResponse", taskResponse)
+
     // Return the final response
-    return new Response(taskResponse.gpt, {
+    return new Response(taskResponse.message, {
       status: 200,
       headers: { "Content-Type": "application/text" }
     })

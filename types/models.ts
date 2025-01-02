@@ -11,3 +11,6 @@ export type ModelProvider =
   | "pollination"
   | "blackbox"
   | "aryahcr"
+  | "ails"
+  | "zanity"
+  | "airforce"
