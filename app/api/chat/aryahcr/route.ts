@@ -1,15 +1,6 @@
 import { ChatSettings } from "@/types"
 
-interface ResponseStatus {
-  status: "pending" | "error" | "completed" | "not_found"
-}
-
-interface ApiResponse {
-  data: {
-    id: string
-  }
-  status: ResponseStatus["status"]
-}
+export const runtime = "edge"
 
 export async function POST(request: Request) {
   const json = await request.json()
@@ -19,17 +10,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const url = "https://nexra.aryahcr.cc/api/chat/"
+    const url = "https://nexra.aryahcr.cc/api/chat/complements"
     const body = {
       messages: messages,
-      stream: false,
+      stream: true,
       markdown: false,
       model: chatSettings.model
     }
 
-    console.log("body", body)
-
-    const response = await fetch(url + "complements", {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -39,49 +28,88 @@ export async function POST(request: Request) {
 
     if (!response.ok) {
       return new Response(JSON.stringify({ message: response.statusText }), {
-        status: response.status,
-        headers: { "Content-Type": "application/json" }
+        status: response.status
       })
     }
 
-    const result = (await response.json()) as ApiResponse
-
-    let id = result.id
-    let taskResponse: ApiResponse | null = null
-    let isProcessing = true
-
-    while (isProcessing) {
-      const taskResult = await fetch(url + "task/" + encodeURIComponent(id))
-      taskResponse = (await taskResult.json()) as ApiResponse
-
-      switch (taskResponse.status) {
-        case "pending":
-          isProcessing = true
-          // Add a small delay to prevent overwhelming the server
-          await new Promise(resolve => setTimeout(resolve, 1000))
-          break
-        case "error":
-        case "completed":
-        case "not_found":
-          isProcessing = false
-          break
-      }
+    const reader = response.body?.getReader()
+    if (!reader) {
+      return new Response(JSON.stringify({ message: "No response body" }), {
+        status: 500
+      })
     }
 
-    console.log("taskResponse", taskResponse)
+    let previousMessage = ""
+    const encoder = new TextEncoder()
 
-    // Return the final response
-    return new Response(taskResponse.message, {
-      status: 200,
-      headers: { "Content-Type": "application/text" }
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        try {
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            const text = new TextDecoder().decode(value)
+            console.log("Text:", text)
+            // Split on Record Separator and handle multiple chunks
+            const chunks = text.split("\u001e")
+            console.log("Chunks:", chunks)
+
+            for (let chunk of chunks) {
+              // Skip empty chunks
+              chunk = chunk.trim()
+              if (!chunk) continue
+
+              try {
+                const parsed = JSON.parse(chunk)
+
+                if (parsed.error) {
+                  console.log("Error:", parsed.error)
+                  return new Response(
+                    JSON.stringify({ message: parsed.error }),
+                    {
+                      status: 500
+                    }
+                  )
+                }
+
+                // Only send the difference between current and previous message
+                if (parsed.message && parsed.message !== previousMessage) {
+                  const newContent = parsed.message.slice(
+                    previousMessage.length
+                  )
+                  controller.enqueue(encoder.encode(newContent))
+                  previousMessage = parsed.message
+                }
+
+                if (parsed.finish) {
+                  console.log("Finish:", parsed.finish)
+                  controller.close()
+                  return
+                }
+              } catch (e) {
+                console.log("Error parsing JSON:", e.message)
+                // Continue if JSON parse fails
+                continue
+              }
+            }
+          }
+        } catch (error) {
+          console.log("Error:", error)
+          controller.error(error)
+        }
+      }
+    })
+
+    return new Response(readableStream, {
+      headers: { "Content-Type": "text/plain" }
     })
   } catch (error: any) {
     const errorMessage = error.message || "An unexpected error occurred"
     const errorCode = error.status || 500
 
     return new Response(JSON.stringify({ message: errorMessage }), {
-      status: errorCode,
-      headers: { "Content-Type": "application/json" }
+      status: errorCode
     })
   }
 }
