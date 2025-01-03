@@ -119,7 +119,6 @@ export const ModelSelect: FC<ModelSelectProps> = ({
   }
 
   const allModels = getModelsForProvider(chatSettings, models)
-  console.log(allModels)
 
   const groupedModels = allModels.reduce<Record<string, LLM[]>>(
     (groups, model) => {
