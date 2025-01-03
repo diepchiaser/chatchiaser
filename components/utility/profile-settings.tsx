@@ -118,6 +118,10 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
     profile?.openrouter_api_key || ""
   )
 
+  const [zanityAPIKey, setZanityAPIKey] = useState(
+    profile?.zanity_api_key || ""
+  )
+
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push("/login")
@@ -157,7 +161,8 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
       azure_openai_45_turbo_id: azureOpenai45TurboID,
       azure_openai_45_vision_id: azureOpenai45VisionID,
       azure_openai_embeddings_id: azureEmbeddingsID,
-      openrouter_api_key: openrouterAPIKey
+      openrouter_api_key: openrouterAPIKey,
+      zanity_api_key: zanityAPIKey
     })
 
     setProfile(updatedProfile)
@@ -172,7 +177,8 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
       "mistral",
       "groq",
       "perplexity",
-      "openrouter"
+      "openrouter",
+      "zanity"
     ]
 
     providers.forEach(async provider => {
@@ -290,6 +296,8 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
       buttonRef.current?.click()
     }
   }
+
+  console.log("profile", profile)
 
   if (!profile) return null
 
@@ -639,6 +647,22 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
                       type="password"
                       value={anthropicAPIKey}
                       onChange={e => setAnthropicAPIKey(e.target.value)}
+                    />
+                  </>
+                )}
+              </div>
+
+              <div className="space-y-1">
+                {envKeyMap["zanity"] ? (
+                  <Label>ZANITY API key set by admin.</Label>
+                ) : (
+                  <>
+                    <Label>ZANITY API Key</Label>
+                    <Input
+                      placeholder="ZANITY API Key"
+                      type="password"
+                      value={zanityAPIKey}
+                      onChange={e => setZanityAPIKey(e.target.value)}
                     />
                   </>
                 )}

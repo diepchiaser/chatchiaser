@@ -1,4 +1,6 @@
 import { ChatSettings } from "@/types"
+import { createStreamResponseV2 } from "@/utils"
+import { checkApiKey, getServerProfile } from "@/lib/server/server-chat-helpers"
 
 export async function POST(request: Request) {
   const json = await request.json()
@@ -8,19 +10,18 @@ export async function POST(request: Request) {
   }
 
   try {
-    const url = "https://api.zanity.xyz"
-    const apikey = process.env.NEXT_PUBLIC_ZANITY_API_KEY
+    const profile = await getServerProfile()
+    checkApiKey(profile.zanity_api_key, "Zanity")
 
-    if (!apikey) {
-      return new Response(JSON.stringify({ message: "API key not found" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      })
-    }
+    const url = "https://api.zanity.xyz"
+    const apikey = profile.zanity_api_key
+
+    console.log("API Key: " + apikey)
 
     const body = {
       messages: messages,
-      model: chatSettings.model
+      model: chatSettings.model,
+      stream: true
     }
 
     const response = await fetch(url + "/v1/chat/completions", {
@@ -33,22 +34,26 @@ export async function POST(request: Request) {
     })
 
     if (!response.ok) {
-      return new Response(JSON.stringify({ message: response.statusText }), {
-        status: response.status,
-        headers: { "Content-Type": "application/json" }
-      })
+      return new Response(
+        JSON.stringify({
+          message: response.statusText + ". Please check API key!"
+        }),
+        {
+          status: response.status,
+          headers: { "Content-Type": "application/json" }
+        }
+      )
     }
 
-    const data = await response.json()
-
-    return new Response(data.choices[0].message.content, {
-      status: 200,
-      headers: { "Content-Type": "text/plain" }
-    })
+    const reader = response.body?.getReader()
+    return createStreamResponseV2(reader, { type: "openai" })
   } catch (error) {
-    return new Response(JSON.stringify({ message: error.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    })
+    return new Response(
+      JSON.stringify({ message: error.message + ". Please check API key!" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
+      }
+    )
   }
 }

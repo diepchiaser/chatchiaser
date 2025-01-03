@@ -1,4 +1,5 @@
 import { ChatSettings } from "@/types"
+import { createStreamResponse } from "@/utils"
 
 export async function POST(request: Request) {
   const json = await request.json()
@@ -16,10 +17,9 @@ export async function POST(request: Request) {
       messages: messages,
       seed: 42,
       jsonMode: true,
-      mode: chatSettings.model
+      mode: chatSettings.model,
+      stream: true
     }
-
-    console.log("body: ", body)
 
     const response = await fetch(url, {
       method: "POST",
@@ -34,18 +34,56 @@ export async function POST(request: Request) {
       })
     }
 
-    const responseText = await response.text()
+    const reader = response.body?.getReader()
+    if (!reader) {
+      return new Response(JSON.stringify({ message: "No response body" }), {
+        status: 500
+      })
+    }
 
-    return new Response(responseText, {
+    const encoder = new TextEncoder()
+    const decoder = new TextDecoder()
+
+    const readableStream = new ReadableStream({
+      async start(controller) {
+        try {
+          while (true) {
+            const { done, value } = await reader.read()
+
+            if (done) {
+              controller.close()
+              break
+            }
+
+            const text = decoder.decode(value)
+
+            const words = text.split(/\s+/)
+
+            for (const word of words) {
+              if (word) {
+                const chunk = word + " "
+                controller.enqueue(encoder.encode(chunk))
+                await new Promise(resolve => setTimeout(resolve, 50))
+              }
+            }
+          }
+        } catch (error) {
+          console.error("Stream error:", error)
+          controller.error(error)
+        }
+      }
+    })
+
+    return new Response(readableStream, {
       headers: { "Content-Type": "text/plain" }
     })
   } catch (error: any) {
     console.log("error: ", error)
-    let errorMessage = error.message || "An unexpected error occurred"
-    const errorCode = error.status || 500
+    const errorMessage = error.message || "An unexpected error occurred"
 
     return new Response(JSON.stringify({ message: errorMessage }), {
-      status: errorCode
+      status: 500,
+      headers: { "Content-Type": "application/json" }
     })
   }
 }
