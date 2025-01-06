@@ -1,5 +1,4 @@
 import { ChatSettings } from "@/types"
-import { createStreamResponse } from "@/utils"
 
 export async function POST(request: Request) {
   const json = await request.json()
@@ -15,9 +14,11 @@ export async function POST(request: Request) {
     }
     const body = {
       messages: messages,
-      seed: 42,
-      jsonMode: true,
       mode: chatSettings.model,
+      frequency_penalty: 0,
+      presence_penalty: 0,
+      temperature: 0.5,
+      top_p: 1,
       stream: true
     }
 
@@ -44,6 +45,9 @@ export async function POST(request: Request) {
     const encoder = new TextEncoder()
     const decoder = new TextDecoder()
 
+    // Buffer to store incomplete UTF-8 sequences
+    let buffer = ""
+
     const readableStream = new ReadableStream({
       async start(controller) {
         try {
@@ -51,20 +55,34 @@ export async function POST(request: Request) {
             const { done, value } = await reader.read()
 
             if (done) {
+              // Flush any remaining buffered content
+              if (buffer.length > 0) {
+                controller.enqueue(encoder.encode(buffer + " "))
+              }
               controller.close()
               break
             }
 
-            const text = decoder.decode(value)
+            const text = decoder.decode(value, { stream: true })
+            buffer += text
 
-            const words = text.split(/\s+/)
+            // Split on sentence boundaries or punctuation
+            const chunks = buffer.match(/[^.!?]+[.!?]+|\s+|[^\s]+/g) || []
 
-            for (const word of words) {
-              if (word) {
-                const chunk = word + " "
-                controller.enqueue(encoder.encode(chunk))
-                await new Promise(resolve => setTimeout(resolve, 50))
+            // Keep the last chunk in the buffer if it doesn't end with punctuation
+            const lastChunk = chunks[chunks.length - 1]
+            const complete = lastChunk?.match(/[.!?]$/)
+
+            if (chunks.length > 1) {
+              // Process all chunks except the last one if incomplete
+              const processUntil = complete ? chunks.length : chunks.length - 1
+
+              for (let i = 0; i < processUntil; i++) {
+                controller.enqueue(encoder.encode(chunks[i]))
+                await new Promise(resolve => setTimeout(resolve, 20)) // Reduced delay
               }
+
+              buffer = complete ? "" : lastChunk
             }
           }
         } catch (error) {
@@ -75,10 +93,13 @@ export async function POST(request: Request) {
     })
 
     return new Response(readableStream, {
-      headers: { "Content-Type": "text/plain" }
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Transfer-Encoding": "chunked"
+      }
     })
   } catch (error: any) {
-    console.log("error: ", error)
+    console.error("error: ", error)
     const errorMessage = error.message || "An unexpected error occurred"
 
     return new Response(JSON.stringify({ message: errorMessage }), {

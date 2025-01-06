@@ -25,8 +25,6 @@ export async function POST(request: Request) {
       s: UtilsInstance.hash({ t: now.getTime(), m: JSON.stringify(messages) })
     }
 
-    console.log("Body", body)
-
     const response = await fetch(url + "/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -62,7 +60,6 @@ export async function POST(request: Request) {
     }
 
     const result = await response.text()
-    console.log("Result", result)
 
     return new Response("Please visit: https://ai.ls", {
       status: 200,

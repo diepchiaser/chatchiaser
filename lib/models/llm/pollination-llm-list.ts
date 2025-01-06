@@ -27,4 +27,18 @@ export const MISTRAL_LARGE: LLM = {
   imageInput: false
 }
 
-export const POLLINATION_LLM_LIST: LLM[] = [OPENAI, MISTRAL, MISTRAL_LARGE]
+export const CLAUDE: LLM = {
+  modelId: "claude",
+  modelName: "Claude 3.5 Sonnet",
+  provider: "pollination",
+  hostedId: "claude-3.5-sonnet",
+  platformLink: "",
+  imageInput: false
+}
+
+export const POLLINATION_LLM_LIST: LLM[] = [
+  OPENAI,
+  MISTRAL,
+  MISTRAL_LARGE,
+  CLAUDE
+]

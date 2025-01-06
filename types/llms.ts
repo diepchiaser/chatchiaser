@@ -67,7 +67,7 @@ export type PerplexityLLMID =
   | "sonar-medium-chat" // Sonar Medium Chat
   | "sonar-medium-online" // Sonar Medium Online
 
-export type PollinationLLMID = "mistral" | "mistral-large" | "openai"
+export type PollinationLLMID = "mistral" | "mistral-large" | "openai" | "claude"
 
 export type BlackboxLLMID = "" // No models available
 

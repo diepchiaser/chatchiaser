@@ -297,8 +297,6 @@ export const ProfileSettings: FC<ProfileSettingsProps> = ({}) => {
     }
   }
 
-  console.log("profile", profile)
-
   if (!profile) return null
 
   return (

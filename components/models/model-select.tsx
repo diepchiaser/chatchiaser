@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 import { ModelIcon } from "./model-icon"
 import { ModelOption } from "./model-option"
 import {
+  CLAUDE,
   MISTRAL,
   MISTRAL_LARGE,
   OPENAI
@@ -74,21 +75,14 @@ export const ModelSelect: FC<ModelSelectProps> = ({
       OPENAI,
       MISTRAL,
       MISTRAL_LARGE,
+      CLAUDE,
 
       // aryahcr
       CHATGPT4o,
-      BING,
       BLACKBOX,
 
-      // zanity
-      GPT_3_5_TURBO,
-      GPT_4_0_FREE,
-      CLAUDE_3_5_SONNET_FREE,
-      DEEPSEEK_CODER_6_7B,
-
       // airforce
-      DEEPSEEK_7B,
-      OPENCHAT_3_5_0106
+      DEEPSEEK_7B
     ]
 
     // display A-Z GPT4Free models
