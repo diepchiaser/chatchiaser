@@ -1,5 +1,6 @@
 import type { NextApiResponse } from "next"
 import client from "@mailchimp/mailchimp_marketing"
+import { NextResponse } from "next/server"
 
 export async function POST(req: Request, res: NextApiResponse) {
   try {
@@ -11,7 +12,7 @@ export async function POST(req: Request, res: NextApiResponse) {
 
     // Validate environment variables
     const MailchimpKey = process.env.MAILCHIMP_API_KEY
-    const MailchimpServer = process.env.MAILCHIMP_API_SERVER
+    const MailchimpServer = process.env.MAILCHIMP_API_SERVER || "us9"
     const MailchimpAudience = process.env.MAILCHIMP_AUDIENCE_ID
 
     if (!MailchimpKey || !MailchimpServer || !MailchimpAudience) {
@@ -32,16 +33,17 @@ export async function POST(req: Request, res: NextApiResponse) {
       status: "subscribed"
     })
 
-    if (response.status !== "subscribed") {
-      return res.status(400).json({ error: "Failed to subscribe" })
-    }
+    console.log("Mailchimp response:", response)
 
-    return res.status(200).json({ message: "Subscribed successfully" })
+    // If successful, return a success message
+    return NextResponse.json({ message: "Subscription successful" })
   } catch (error: any) {
     console.error("Error subscribing user:", error)
     if (error.response?.body?.title === "Member Exists") {
-      return res.status(400).json({ error: "Email is already subscribed" })
+      return NextResponse.status(201).json({
+        error: "Email is already subscribed"
+      })
     }
-    return res.status(500).json({ error: "Internal Server Error" })
+    return NextResponse.status(201).json({ error: "Internal Server Error" })
   }
 }
