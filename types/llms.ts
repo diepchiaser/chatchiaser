@@ -67,7 +67,21 @@ export type PerplexityLLMID =
   | "sonar-medium-chat" // Sonar Medium Chat
   | "sonar-medium-online" // Sonar Medium Online
 
-export type PollinationLLMID = "mistral" | "mistral-large" | "openai" | "claude"
+export type PollinationLLMID =
+  | "mistral"
+  | "mistral-large"
+  | "openai"
+  | "claude"
+  | "deepseek"
+  | "qwen"
+  | "qwen-coder"
+  | "llama"
+  | "unity"
+  | "midijourney"
+  | "rtist"
+  | "searchgpt"
+  | "evil"
+  | "p1"
 
 export type BlackboxLLMID = "" // No models available
 
@@ -82,7 +96,30 @@ export type ZanityLLMID =
   | "deepseek-coder-6.7b"
   | "deepseek-v2.5"
 
-export type AirForceLLMID = "deepseek-math-7b-instruct" | "openchat-3.5-0106"
+export type AirForceLLMID =
+  | "deepseek-math-7b-instruct"
+  | "openchat-3.5-0106"
+  | "deepseek-coder-6.7b-base"
+  | "deepseek-coder-6.7b-instruct"
+  | "deepseek-math-7b-instruct"
+  | "Nous-Hermes-2-Mixtral-8x7B-DPO"
+  | "hermes-2-pro-mistral-7b"
+  | "openhermes-2.5-mistral-7b"
+  | "lfm-40b-moe"
+  | "discolm-german-7b-v1"
+  | "falcon-7b-instruct"
+  | "llama-2-7b-chat-int8"
+  | "llama-2-7b-chat-fp16"
+  | "neural-chat-7b-v3-1"
+  | "phi-2"
+  | "sqlcoder-7b-2"
+  | "tinyllama-1.1b-chat"
+  | "zephyr-7b-beta"
+  | "any-uncensored"
+  | "llama-3.1-70b-chat"
+  | "llama-3.1-8b-chat"
+  | "llama-3.1-70b-turbo"
+  | "llama-3.1-8b-turbo"
 
 export interface LLM {
   modelId: LLMID

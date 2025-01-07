@@ -12,12 +12,6 @@ import { Input } from "../ui/input"
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 import { ModelIcon } from "./model-icon"
 import { ModelOption } from "./model-option"
-import {
-  CLAUDE,
-  MISTRAL,
-  MISTRAL_LARGE,
-  OPENAI
-} from "@/lib/models/llm/pollination-llm-list"
 import { CLAUDE_SONNET_B, OPENAI_B } from "@/lib/models/llm/blackbox-llm-list"
 import { BING, BLACKBOX, CHATGPT4o } from "@/lib/models/llm/aryahcr-llm-list"
 import {
@@ -30,6 +24,8 @@ import {
   DEEPSEEK_7B,
   OPENCHAT_3_5_0106
 } from "@/lib/models/llm/airforce-llm-list"
+import { fetchPollinationsModels } from "@/lib/models/fetch/gpt4free/pollinations"
+import { fetchAirForceModels } from "@/lib/models/fetch/gpt4free/airforce"
 
 interface ModelSelectProps {
   selectedModelId: string
@@ -55,6 +51,45 @@ export const ModelSelect: FC<ModelSelectProps> = ({
   const [isOpen, setIsOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [tab, setTab] = useState<"hosted" | "local">("hosted")
+  const [gpt4freeModels, setGpt4freeModels] = useState<LLM[]>([
+    // aryahcr
+    CHATGPT4o
+  ])
+
+  useEffect(() => {
+    const fetchModels = async () => {
+      const cachedModels = localStorage.getItem("gpt4freeModels")
+      const cachedTime = localStorage.getItem("gpt4freeModelsTimestamp")
+
+      const isCacheValid =
+        cachedModels &&
+        cachedTime &&
+        Date.now() - Number(cachedTime) < 604800000 // 7 days in milliseconds
+
+      if (isCacheValid) {
+        setGpt4freeModels(JSON.parse(cachedModels))
+      } else {
+        const pollinationModels = await fetchPollinationsModels()
+        const airforceModels = await fetchAirForceModels()
+
+        const newModels = [
+          ...gpt4freeModels,
+          ...pollinationModels,
+          ...airforceModels
+        ]
+        const sortedModels = newModels.sort((a, b) =>
+          a.modelName.localeCompare(b.modelName)
+        )
+
+        setGpt4freeModels(sortedModels)
+
+        localStorage.setItem("gpt4freeModels", JSON.stringify(sortedModels))
+        localStorage.setItem("gpt4freeModelsTimestamp", Date.now().toString())
+      }
+    }
+
+    fetchModels()
+  }, [])
 
   useEffect(() => {
     if (isOpen) {
@@ -70,23 +105,10 @@ export const ModelSelect: FC<ModelSelectProps> = ({
   }
 
   const getModelsForProvider = (chatSettings, models) => {
-    const GPT4FREE_MODELS = [
-      // pollination
-      OPENAI,
-      MISTRAL,
-      MISTRAL_LARGE,
-      CLAUDE,
-
-      // aryahcr
-      CHATGPT4o,
-      BLACKBOX,
-
-      // airforce
-      DEEPSEEK_7B
-    ]
-
-    // display A-Z GPT4Free models
-    GPT4FREE_MODELS.sort((a, b) => a.modelName.localeCompare(b.modelName))
+    const GPT4FREE_MODELS = gpt4freeModels.filter(
+      (model, index, self) =>
+        index === self.findIndex(m => m.modelId === model.modelId)
+    )
 
     const formatCustomModels = models => {
       return models.map(model => ({
