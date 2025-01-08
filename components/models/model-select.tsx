@@ -12,20 +12,7 @@ import { Input } from "../ui/input"
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 import { ModelIcon } from "./model-icon"
 import { ModelOption } from "./model-option"
-import { CLAUDE_SONNET_B, OPENAI_B } from "@/lib/models/llm/blackbox-llm-list"
-import { BING, BLACKBOX, CHATGPT4o } from "@/lib/models/llm/aryahcr-llm-list"
-import {
-  CLAUDE_3_5_SONNET_FREE,
-  DEEPSEEK_CODER_6_7B,
-  GPT_3_5_TURBO,
-  GPT_4_0_FREE
-} from "@/lib/models/llm/zanity-llm-list"
-import {
-  DEEPSEEK_7B,
-  OPENCHAT_3_5_0106
-} from "@/lib/models/llm/airforce-llm-list"
-import { fetchPollinationsModels } from "@/lib/models/fetch/gpt4free/pollinations"
-import { fetchAirForceModels } from "@/lib/models/fetch/gpt4free/airforce"
+import { CHATGPT4o } from "@/lib/models/llm/aryahcr-llm-list"
 
 interface ModelSelectProps {
   selectedModelId: string
@@ -57,6 +44,13 @@ export const ModelSelect: FC<ModelSelectProps> = ({
   ])
 
   useEffect(() => {
+    const fetchAiModelsFromProviders = async () => {
+      const resAirforce = await fetch("/api/model/airforce")
+      const resPollinations = await fetch("/api/model/pollinations")
+
+      return [await resAirforce.json(), await resPollinations.json()]
+    }
+
     const fetchModels = async () => {
       const cachedModels = localStorage.getItem("gpt4freeModels")
       const cachedTime = localStorage.getItem("gpt4freeModelsTimestamp")
@@ -69,8 +63,8 @@ export const ModelSelect: FC<ModelSelectProps> = ({
       if (isCacheValid) {
         setGpt4freeModels(JSON.parse(cachedModels))
       } else {
-        const pollinationModels = await fetchPollinationsModels()
-        const airforceModels = await fetchAirForceModels()
+        const [airforceModels, pollinationModels] =
+          await fetchAiModelsFromProviders()
 
         const newModels = [
           ...gpt4freeModels,

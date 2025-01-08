@@ -1,14 +1,7 @@
+import { Model } from "./type"
 import { LLMID, ModelProvider } from "@/types"
 
-interface Model {
-  name: string
-  type?: string
-  censored?: boolean
-  description?: string
-  baseModel?: boolean
-}
-
-export const fetchPollinationsModels = async () => {
+export async function GET(request: Request) {
   try {
     const response = await fetch("https://text.pollinations.ai/models", {
       headers: {
@@ -22,10 +15,10 @@ export const fetchPollinationsModels = async () => {
 
     const text = await response.text()
 
-    // Parse JSON manually
+    // // Parse JSON manually
     const data = JSON.parse(text)
 
-    return data.map((model: Model) => ({
+    const models = data.map((model: Model) => ({
       modelId: model.name as LLMID,
       modelName: model.description,
       provider: "pollination" as ModelProvider,
@@ -33,7 +26,16 @@ export const fetchPollinationsModels = async () => {
       platformLink: "https://pollinations.ai",
       imageInput: false
     }))
+
+    return new Response(JSON.stringify(models), {
+      headers: { "Content-Type": "application/json" }
+    })
   } catch (error) {
     console.warn("Error fetching hosted models: " + error)
+
+    return new Response(JSON.stringify({ message: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    })
   }
 }
