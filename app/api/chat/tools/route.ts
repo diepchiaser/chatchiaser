@@ -1,10 +1,15 @@
 import { openapiToFunctions } from "@/lib/openapi-conversion"
 import { checkApiKey, getServerProfile } from "@/lib/server/server-chat-helpers"
 import { Tables } from "@/supabase/types"
-import { ChatSettings } from "@/types"
+import {
+  ChatSettings,
+  DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME,
+  DEFAULT_POLLINATIONS_IMAGE_GENERATOR_NAME
+} from "@/types"
 import { OpenAIStream, StreamingTextResponse } from "ai"
 import OpenAI from "openai"
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs"
+import { getToolById } from "@/db/tools"
 
 export async function POST(request: Request) {
   const json = await request.json()
@@ -14,8 +19,63 @@ export async function POST(request: Request) {
     selectedTools: Tables<"tools">[]
   }
 
+  console.log("Selected tools:", selectedTools)
+
+  const processTool = tool => {
+    const { url, schema } = tool
+
+    if (typeof schema !== "string") {
+      return new Response("Invalid schema format", { status: 400 })
+    }
+
+    try {
+      const parsedSchema = JSON.parse(schema)
+      const { default_parameters: defaultParameters } = parsedSchema || {}
+
+      if (!defaultParameters) {
+        throw new Error("Default parameters are missing.")
+      }
+
+      const { seed, width, height, size, model } = defaultParameters
+      const lastMessage = messages[messages.length - 1]
+      const encodedContent = encodeURIComponent(lastMessage.content)
+
+      let fullUrl
+
+      if (tool.name === DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME) {
+        // `airforce` tool
+        fullUrl = `${url}?prompt=${encodedContent}&${new URLSearchParams({ seed, model, ...(size && { size }) }).toString()}`
+      } else if (tool.name === DEFAULT_POLLINATIONS_IMAGE_GENERATOR_NAME) {
+        // `pollinations` tool
+        fullUrl = `${url}${encodedContent}?${new URLSearchParams({ seed, model, ...(width && { width }), ...(height && { height }) }).toString()}`
+      }
+
+      return new Response(fullUrl, {
+        status: 200,
+        headers: { "Content-Type": "application/json" }
+      })
+    } catch (error) {
+      console.error("Error processing schema:", error)
+      return new Response("Error processing request", { status: 400 })
+    }
+  }
+
   try {
     const profile = await getServerProfile()
+
+    const pollinationTool = selectedTools.find(
+      tool => tool.name === DEFAULT_POLLINATIONS_IMAGE_GENERATOR_NAME
+    )
+    if (pollinationTool) {
+      return processTool(pollinationTool)
+    }
+
+    const airforceTool = selectedTools.find(
+      tool => tool.name === DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME
+    )
+    if (airforceTool) {
+      return processTool(airforceTool)
+    }
 
     checkApiKey(profile.openai_api_key, "OpenAI")
 

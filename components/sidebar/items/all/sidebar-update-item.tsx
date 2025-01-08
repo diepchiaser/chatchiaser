@@ -113,7 +113,8 @@ export const SidebarUpdateItem: FC<SidebarUpdateItemProps> = ({
     setAssistants,
     setTools,
     setModels,
-    setAssistantImages
+    setAssistantImages,
+    setToolInUse
   } = useContext(ChatbotUIContext)
 
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -544,6 +545,7 @@ export const SidebarUpdateItem: FC<SidebarUpdateItemProps> = ({
     tools: async (toolId: string, updateState: TablesUpdate<"tools">) => {
       const updatedTool = await updateTool(toolId, updateState)
 
+      setToolInUse(`${updatedTool.name}`)
       await handleWorkspaceUpdates(
         startingWorkspaces,
         selectedWorkspaces,

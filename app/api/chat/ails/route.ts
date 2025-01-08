@@ -1,5 +1,4 @@
 import { ChatSettings } from "@/types"
-import { eventStream, UtilsInstance } from "@/utils"
 import { v4 } from "uuid"
 
 export async function POST(request: Request) {
@@ -21,8 +20,7 @@ export async function POST(request: Request) {
       messages: messages,
       stream: false,
       d: now.toISOString().split("T")[0],
-      t: now.getTime(),
-      s: UtilsInstance.hash({ t: now.getTime(), m: JSON.stringify(messages) })
+      t: now.getTime()
     }
 
     const response = await fetch(url + "/v1/chat/completions", {
@@ -65,7 +63,7 @@ export async function POST(request: Request) {
       status: 200,
       headers: { "Content-Type": "application/json" }
     })
-  } catch (error) {
+  } catch (error: any) {
     return new Response(JSON.stringify({ message: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" }

@@ -3,7 +3,16 @@ import { ChatbotUIContext } from "@/context/context"
 import { LLM_LIST } from "@/lib/models/llm/llm-list"
 import { cn } from "@/lib/utils"
 import { Tables } from "@/supabase/types"
-import { LLM, LLMID, MessageImage, ModelProvider } from "@/types"
+import {
+  DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME,
+  DEFAULT_AIRFORCE_NAME,
+  DEFAULT_POLLINATIONS_IMAGE_GENERATOR_NAME,
+  DEFAULT_POLLINATIONS_NAME,
+  LLM,
+  LLMID,
+  MessageImage,
+  ModelProvider
+} from "@/types"
 import {
   IconBolt,
   IconCaretDownFilled,
@@ -58,6 +67,7 @@ export const Message: FC<MessageProps> = ({
     chatImages,
     assistantImages,
     toolInUse,
+    selectedTools,
     files,
     models
   } = useContext(ChatbotUIContext)
@@ -77,6 +87,43 @@ export const Message: FC<MessageProps> = ({
     useState<Tables<"file_items"> | null>(null)
 
   const [viewSources, setViewSources] = useState(false)
+  const [isImagePreviewVisible, setImagePreviewVisible] = useState(false)
+
+  useEffect(() => {
+    if (selectedTools.length === 0) return
+
+    const checkToolVisibility = (toolName: string, defaultName: string) => {
+      const tool = selectedTools.find(t => t.name === toolName)
+
+      if (tool) {
+        console.log(`${defaultName} Tool`)
+
+        if (typeof tool.schema !== "string") {
+          return
+        }
+
+        try {
+          const parsedSchema = JSON.parse(tool.schema)
+          console.log("Parsed Schema", parsedSchema)
+          if (parsedSchema?.id === defaultName) {
+            console.log("True")
+            setImagePreviewVisible(true)
+          }
+        } catch (error) {
+          console.error(`Error parsing schema for ${defaultName}:`, error)
+        }
+      }
+    }
+
+    checkToolVisibility(
+      DEFAULT_POLLINATIONS_IMAGE_GENERATOR_NAME,
+      DEFAULT_POLLINATIONS_NAME
+    )
+    checkToolVisibility(
+      DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME,
+      DEFAULT_AIRFORCE_NAME
+    )
+  }, [selectedTools])
 
   const handleCopy = () => {
     if (navigator.clipboard) {
@@ -178,6 +225,32 @@ export const Message: FC<MessageProps> = ({
     }
     return acc
   }, fileAccumulator)
+
+  const renderMessageContent = () => {
+    if (message.role === "assistant" && isImagePreviewVisible) {
+      return (
+        <Image
+          className="cursor-pointer rounded hover:opacity-50"
+          src={message.content}
+          alt="message image"
+          width={300}
+          height={300}
+          onClick={() => {
+            setSelectedImage({
+              messageId: message.id,
+              path: "",
+              base64: "",
+              url: message.content,
+              file: null
+            })
+            setImagePreviewVisible(true)
+          }}
+          loading="lazy"
+        />
+      )
+    }
+    return <MessageMarkdown content={message.content} />
+  }
 
   return (
     <div
@@ -305,7 +378,7 @@ export const Message: FC<MessageProps> = ({
               maxRows={20}
             />
           ) : (
-            <MessageMarkdown content={message.content} />
+            renderMessageContent()
           )}
         </div>
 
