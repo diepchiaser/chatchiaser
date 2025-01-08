@@ -50,6 +50,8 @@ export async function POST(request: Request) {
         fullUrl = `${url}${encodedContent}?${new URLSearchParams({ seed, model, ...(width && { width }), ...(height && { height }) }).toString()}`
       }
 
+      console.log("Full URL:", fullUrl)
+
       return new Response(fullUrl, {
         status: 200,
         headers: { "Content-Type": "application/json" }
