@@ -1,6 +1,6 @@
 import { Model } from "./type"
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const response = await fetch("https://api.airforce/v1/models", {
       headers: {
@@ -24,7 +24,6 @@ export async function GET(request: Request) {
       platformLink: "https://airforce.com",
       imageInput: false
     }))
-    console.log("Model", models)
 
     return new Response(JSON.stringify(models), {
       headers: { "Content-Type": "application/json" }

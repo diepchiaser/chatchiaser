@@ -1,7 +1,7 @@
 import { Model } from "./type"
 import { LLMID, ModelProvider } from "@/types"
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
     const response = await fetch("https://text.pollinations.ai/models", {
       headers: {
@@ -30,7 +30,7 @@ export async function GET(request: Request) {
     return new Response(JSON.stringify(models), {
       headers: { "Content-Type": "application/json" }
     })
-  } catch (error) {
+  } catch (error: any) {
     console.warn("Error fetching hosted models: " + error)
 
     return new Response(JSON.stringify({ message: error.message }), {
