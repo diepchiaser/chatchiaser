@@ -48,7 +48,7 @@ export const ModelSelect: FC<ModelSelectProps> = ({
       const resAirforce = await fetch("/api/model/airforce")
       const resPollinations = await fetch("/api/model/pollinations")
 
-      return [await resAirforce.json(), await resPollinations.json()]
+      return [await resPollinations.json()]
     }
 
     const fetchModels = async () => {
@@ -63,14 +63,9 @@ export const ModelSelect: FC<ModelSelectProps> = ({
       if (isCacheValid) {
         setGpt4freeModels(JSON.parse(cachedModels))
       } else {
-        const [airforceModels, pollinationModels] =
-          await fetchAiModelsFromProviders()
+        const [pollinationModels] = await fetchAiModelsFromProviders()
 
-        const newModels = [
-          ...gpt4freeModels,
-          ...pollinationModels,
-          ...airforceModels
-        ]
+        const newModels = [...gpt4freeModels, ...pollinationModels]
         const sortedModels = newModels.sort((a, b) =>
           a.modelName.localeCompare(b.modelName)
         )
