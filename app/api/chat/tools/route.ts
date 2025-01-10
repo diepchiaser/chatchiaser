@@ -10,6 +10,7 @@ import { OpenAIStream, StreamingTextResponse } from "ai"
 import OpenAI from "openai"
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs"
 import { getToolById } from "@/db/tools"
+import { DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME } from "@/types/airforce-audio"
 
 export async function POST(request: Request) {
   const json = await request.json()
@@ -23,6 +24,9 @@ export async function POST(request: Request) {
 
   const processTool = tool => {
     const { url, schema } = tool
+
+    console.log("URL:", url)
+    console.log("Schema:", schema)
 
     if (typeof schema !== "string") {
       return new Response("Invalid schema format", { status: 400 })
@@ -77,6 +81,41 @@ export async function POST(request: Request) {
     )
     if (airforceTool) {
       return processTool(airforceTool)
+    }
+
+    const airforceAudioTool = selectedTools.find(
+      tool => tool.name === DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME
+    )
+
+    if (airforceAudioTool) {
+      try {
+        const { url, schema } = airforceAudioTool
+        const parsedSchema = JSON.parse(schema as string)
+        if (!parsedSchema) {
+          throw new Error("Invalid schema format")
+        }
+        const { default_parameters: defaultParameters } = parsedSchema || {}
+
+        if (!defaultParameters) {
+          throw new Error("Default parameters are missing.")
+        }
+
+        const { voice } = defaultParameters
+        const lastMessage = messages[messages.length - 1]
+        const encodedContent = encodeURIComponent(lastMessage.content)
+
+        const fullUrl = `${url}?text=${encodedContent}&voice=${voice}`
+
+        return new Response(fullUrl, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json"
+          }
+        })
+      } catch (error) {
+        console.error("Error processing schema:", error)
+        return new Response("Error processing request", { status: 400 })
+      }
     }
 
     checkApiKey(profile.openai_api_key, "OpenAI")

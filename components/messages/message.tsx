@@ -32,6 +32,7 @@ import { TextareaAutosize } from "../ui/textarea-autosize"
 import { WithTooltip } from "../ui/with-tooltip"
 import { MessageActions } from "./message-actions"
 import { MessageMarkdown } from "./message-markdown"
+import { DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME } from "@/types/airforce-audio"
 
 const ICON_SIZE = 32
 
@@ -89,6 +90,10 @@ export const Message: FC<MessageProps> = ({
   const [viewSources, setViewSources] = useState(false)
   const [isImagePreviewVisible, setImagePreviewVisible] = useState(false)
 
+  const [audioSrc, setAudioSrc] = useState("")
+  const audioRef = useRef(new Audio())
+  const [isAudioPreviewVisible, setAudioPreviewVisible] = useState(false)
+
   useEffect(() => {
     if (selectedTools.length === 0) return
 
@@ -123,6 +128,15 @@ export const Message: FC<MessageProps> = ({
       DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME,
       DEFAULT_AIRFORCE_NAME
     )
+
+    // audio
+    const checkAudioToolVisibility = selectedTools.find(
+      t => t.name === DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME
+    )
+    if (checkAudioToolVisibility) {
+      console.log("Audio Tool")
+      setAudioPreviewVisible(true)
+    }
   }, [selectedTools])
 
   const handleCopy = () => {
@@ -249,6 +263,23 @@ export const Message: FC<MessageProps> = ({
         />
       )
     }
+
+    if (message.role === "assistant" && isAudioPreviewVisible) {
+      const downloadAudio = async () => {
+        const response = await fetch(message.content)
+        const blob = await response.blob()
+        audioRef.current.src = URL.createObjectURL(blob)
+      }
+
+      return (
+        <div className="flex items-center space-x-2">
+          <IconBolt size={20} />
+          <audio ref={audioRef} controls></audio>
+          <button onClick={downloadAudio}>Listen</button>
+        </div>
+      )
+    }
+
     return <MessageMarkdown content={message.content} />
   }
 
