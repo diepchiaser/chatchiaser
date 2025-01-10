@@ -45,7 +45,6 @@ export async function POST(request: Request) {
     const encoder = new TextEncoder()
     const decoder = new TextDecoder()
 
-    // Buffer to store incomplete UTF-8 sequences
     let buffer = ""
 
     const readableStream = new ReadableStream({
@@ -55,34 +54,30 @@ export async function POST(request: Request) {
             const { done, value } = await reader.read()
 
             if (done) {
-              // Flush any remaining buffered content
               if (buffer.length > 0) {
-                controller.enqueue(encoder.encode(buffer + " "))
+                controller.enqueue(encoder.encode(buffer))
               }
               controller.close()
               break
             }
 
             const text = decoder.decode(value, { stream: true })
-            buffer += text
-
-            // Split on sentence boundaries or punctuation
-            const chunks = buffer.match(/[^.!?]+[.!?]+|\s+|[^\s]+/g) || []
-
-            // Keep the last chunk in the buffer if it doesn't end with punctuation
-            const lastChunk = chunks[chunks.length - 1]
-            const complete = lastChunk?.match(/[.!?]$/)
-
-            if (chunks.length > 1) {
-              // Process all chunks except the last one if incomplete
-              const processUntil = complete ? chunks.length : chunks.length - 1
-
-              for (let i = 0; i < processUntil; i++) {
-                controller.enqueue(encoder.encode(chunks[i]))
-                await new Promise(resolve => setTimeout(resolve, 20)) // Reduced delay
+            // Process the text to extract only content
+            const lines = text.split("\n")
+            for (const line of lines) {
+              if (line.startsWith("data: ") && line !== "data: [DONE]") {
+                try {
+                  const parsed = JSON.parse(line.slice(6))
+                  if (parsed.choices?.[0]?.delta?.content) {
+                    const content = parsed.choices[0].delta.content
+                    controller.enqueue(encoder.encode(content))
+                    await new Promise(resolve => setTimeout(resolve, 20))
+                  }
+                } catch (e) {
+                  // Skip invalid JSON
+                  continue
+                }
               }
-
-              buffer = complete ? "" : lastChunk
             }
           }
         } catch (error) {
@@ -101,7 +96,6 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("error: ", error)
     const errorMessage = error.message || "An unexpected error occurred"
-
     return new Response(JSON.stringify({ message: errorMessage }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
