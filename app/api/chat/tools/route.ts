@@ -109,7 +109,8 @@ export async function POST(request: Request) {
         return new Response(fullUrl, {
           status: 200,
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
           }
         })
       } catch (error) {
