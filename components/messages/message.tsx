@@ -241,7 +241,11 @@ export const Message: FC<MessageProps> = ({
   }, fileAccumulator)
 
   const renderMessageContent = () => {
-    if (message.role === "assistant" && isImagePreviewVisible) {
+    if (
+      message.role === "assistant" &&
+      isImagePreviewVisible &&
+      message.content.startsWith("https://image.pollinations.ai/prompt")
+    ) {
       return (
         <Image
           className="cursor-pointer rounded hover:opacity-50"
