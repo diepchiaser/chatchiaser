@@ -11,6 +11,7 @@ import OpenAI from "openai"
 import { ChatCompletionCreateParamsBase } from "openai/resources/chat/completions.mjs"
 import { getToolById } from "@/db/tools"
 import { DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME } from "@/types/airforce-audio"
+import { DEFAULT_YOUDAO_AUDIO_GENERATOR_NAME } from "@/types/youdao-audio"
 
 export async function POST(request: Request) {
   const json = await request.json()
@@ -105,6 +106,42 @@ export async function POST(request: Request) {
         const encodedContent = encodeURIComponent(lastMessage.content)
 
         const fullUrl = `${url}?text=${encodedContent}&voice=${voice}`
+
+        return new Response(fullUrl, {
+          status: 200,
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*"
+          }
+        })
+      } catch (error) {
+        console.error("Error processing schema:", error)
+        return new Response("Error processing request", { status: 400 })
+      }
+    }
+
+    const youdaoAudioTool = selectedTools.find(
+      tool => tool.name === DEFAULT_YOUDAO_AUDIO_GENERATOR_NAME
+    )
+    if (youdaoAudioTool) {
+      try {
+        const { url, schema } = youdaoAudioTool
+        const parsedSchema = JSON.parse(schema as string)
+        if (!parsedSchema) {
+          throw new Error("Invalid schema format")
+        }
+        const { default_parameters: defaultParameters } = parsedSchema || {}
+
+        if (!defaultParameters) {
+          throw new Error("Default parameters are missing.")
+        }
+
+        const { type, le } = defaultParameters
+        const lastMessage = messages[messages.length - 1]
+        const encodedContent = encodeURIComponent(lastMessage.content)
+
+        const fullUrl = `${url}?audio=${encodedContent}&type=${type}`
+        console.log("Full URL:", fullUrl)
 
         return new Response(fullUrl, {
           status: 200,

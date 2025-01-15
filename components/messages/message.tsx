@@ -33,6 +33,7 @@ import { WithTooltip } from "../ui/with-tooltip"
 import { MessageActions } from "./message-actions"
 import { MessageMarkdown } from "./message-markdown"
 import { DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME } from "@/types/airforce-audio"
+import { DEFAULT_YOUDAO_AUDIO_GENERATOR_NAME } from "@/types/youdao-audio"
 
 const ICON_SIZE = 32
 
@@ -130,7 +131,7 @@ export const Message: FC<MessageProps> = ({
 
     // audio
     const checkAudioToolVisibility = selectedTools.find(
-      t => t.name === DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME
+      t => t.name === DEFAULT_YOUDAO_AUDIO_GENERATOR_NAME
     )
     if (checkAudioToolVisibility) {
       console.log("Audio Tool")
@@ -263,7 +264,11 @@ export const Message: FC<MessageProps> = ({
       )
     }
 
-    if (message.role === "assistant" && isAudioPreviewVisible) {
+    if (
+      message.role === "assistant" &&
+      isAudioPreviewVisible &&
+      message.content.startsWith("https://dict.youdao.com/dictvoice")
+    ) {
       return (
         <div className="flex items-center space-x-2">
           <IconBolt size={20} />
