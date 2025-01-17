@@ -27,4 +27,13 @@ export const BLACKBOX: LLM = {
   imageInput: false
 }
 
-export const ARYAHR_LLM_LIST: LLM[] = [CHATGPT4o, BING, BLACKBOX]
+export const QWEN: LLM = {
+  modelId: "qwen-aryahcr",
+  modelName: "Qwen",
+  provider: "aryahcr",
+  hostedId: "",
+  platformLink: "",
+  imageInput: true
+}
+
+export const ARYAHR_LLM_LIST: LLM[] = [CHATGPT4o, BING, BLACKBOX, QWEN]

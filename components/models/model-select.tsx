@@ -12,7 +12,7 @@ import { Input } from "../ui/input"
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs"
 import { ModelIcon } from "./model-icon"
 import { ModelOption } from "./model-option"
-import { CHATGPT4o } from "@/lib/models/llm/aryahcr-llm-list"
+import { CHATGPT4o, QWEN } from "@/lib/models/llm/aryahcr-llm-list"
 
 interface ModelSelectProps {
   selectedModelId: string
@@ -40,15 +40,15 @@ export const ModelSelect: FC<ModelSelectProps> = ({
   const [tab, setTab] = useState<"hosted" | "local">("hosted")
   const [gpt4freeModels, setGpt4freeModels] = useState<LLM[]>([
     // aryahcr
-    CHATGPT4o
+    CHATGPT4o,
+    QWEN
   ])
 
   useEffect(() => {
     const fetchAiModelsFromProviders = async () => {
-      const resAirforce = await fetch("/api/model/airforce")
       const resPollinations = await fetch("/api/model/pollinations")
 
-      return [await resAirforce.json(), await resPollinations.json()]
+      return [await resPollinations.json()]
     }
 
     const fetchModels = async () => {
@@ -63,14 +63,9 @@ export const ModelSelect: FC<ModelSelectProps> = ({
       if (isCacheValid) {
         setGpt4freeModels(JSON.parse(cachedModels))
       } else {
-        const [airforceModels, pollinationModels] =
-          await fetchAiModelsFromProviders()
+        const [pollinationModels] = await fetchAiModelsFromProviders()
 
-        const newModels = [
-          ...gpt4freeModels,
-          ...pollinationModels,
-          ...airforceModels
-        ]
+        const newModels = [...gpt4freeModels, ...pollinationModels]
         const sortedModels = newModels.sort((a, b) =>
           a.modelName.localeCompare(b.modelName)
         )

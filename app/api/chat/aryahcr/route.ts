@@ -11,6 +11,10 @@ export async function POST(request: Request) {
   }
 
   try {
+    if (chatSettings.model === "qwen-aryahcr") {
+      chatSettings.model = "qwen"
+    }
+
     const url = "https://nexra.aryahcr.cc/api/chat/complements"
     const body = {
       messages: messages,

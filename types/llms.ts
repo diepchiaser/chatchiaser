@@ -1,4 +1,5 @@
 import { ModelProvider } from "."
+import { GPT4oAryahcr, QWENAryahcr } from "@/lib/models/llm/aryahcr-llm-list"
 
 export type LLMID =
   | OpenAILLMID
@@ -85,7 +86,7 @@ export type PollinationLLMID =
 
 export type BlackboxLLMID = "" // No models available
 
-export type AryahcrLLMID = "gpt-4o" | "Bing" | "blackbox"
+export type AryahcrLLMID = "gpt-4o" | "Bing" | "blackbox" | "qwen-aryahcr"
 
 export type AilsLLMID = "" // No models available
 
