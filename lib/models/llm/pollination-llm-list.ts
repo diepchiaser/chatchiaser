@@ -2,11 +2,20 @@ import { LLM } from "@/types"
 
 export const OPENAI: LLM = {
   modelId: "openai",
+  modelName: "OpenAI GPT-4o-mini",
+  provider: "pollination",
+  hostedId: "OpenAI GPT-4o-mini",
+  platformLink: "",
+  imageInput: true
+}
+
+export const OPENAI_LARGE: LLM = {
+  modelId: "openai-large",
   modelName: "OpenAI GPT-4o",
   provider: "pollination",
-  hostedId: "openai-gpt-4o",
+  hostedId: "OpenAI GPT-4o",
   platformLink: "",
-  imageInput: false
+  imageInput: true
 }
 
 export const QWEN: LLM = {
@@ -15,7 +24,7 @@ export const QWEN: LLM = {
   provider: "pollination",
   hostedId: "qwen-2.5-72b",
   platformLink: "",
-  imageInput: false
+  imageInput: true
 }
 
 export const QWEN_CODER: LLM = {
@@ -24,7 +33,7 @@ export const QWEN_CODER: LLM = {
   provider: "pollination",
   hostedId: "qwen-2.5-coder-32b",
   platformLink: "",
-  imageInput: false
+  imageInput: true
 }
 
 export const LLAMA: LLM = {
@@ -42,7 +51,7 @@ export const MISTRAL: LLM = {
   provider: "pollination",
   hostedId: "mistral-nemo",
   platformLink: "",
-  imageInput: false
+  imageInput: true
 }
 
 export const LLAMA_COMPLETION: LLM = {
@@ -117,6 +126,24 @@ export const DEEPSEEK: LLM = {
   imageInput: false
 }
 
+export const LLAMALIGHT: LLM = {
+  modelId: "llamalight",
+  modelName: "Llama 3.1 8B Instruct",
+  provider: "pollination",
+  hostedId: "llama-3.1-8b-instruct",
+  platformLink: "",
+  imageInput: true
+}
+
+export const CLAUDE_HYBRIDSPACE: LLM = {
+  modelId: "claude-hybridspace",
+  modelName: "Claude Hybridspace",
+  provider: "pollination",
+  hostedId: "claude-hybridspace",
+  platformLink: "",
+  imageInput: true
+}
+
 export const POLLINATION_LLM_LIST: LLM[] = [
   OPENAI,
   QWEN,
@@ -130,5 +157,8 @@ export const POLLINATION_LLM_LIST: LLM[] = [
   SEARCHGPT,
   EVIL,
   P1,
-  DEEPSEEK
+  DEEPSEEK,
+  OPENAI_LARGE,
+  LLAMALIGHT,
+  CLAUDE_HYBRIDSPACE
 ]

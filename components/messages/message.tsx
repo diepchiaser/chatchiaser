@@ -240,50 +240,54 @@ export const Message: FC<MessageProps> = ({
     return acc
   }, fileAccumulator)
 
+  const isImageUrl = (url: string) =>
+    url.startsWith("https://image.pollinations.ai/prompt")
+  const isAudioUrl = (url: string) =>
+    url.startsWith("https://dict.youdao.com/dictvoice")
+
+  const renderImage = () => (
+    <Image
+      className="cursor-pointer rounded hover:opacity-50"
+      src={message.content}
+      alt="message image"
+      width={300}
+      height={300}
+      onClick={() => {
+        setSelectedImage({
+          messageId: message.id,
+          path: "",
+          base64: "",
+          url: message.content,
+          file: null
+        })
+        setImagePreviewVisible(true)
+      }}
+      loading="lazy"
+    />
+  )
+
+  const renderAudio = () => (
+    <div className="flex items-center space-x-2">
+      <IconBolt size={20} />
+      <audio ref={audioRef} src={message.content} type="audio/mpeg" controls />
+    </div>
+  )
+
   const renderMessageContent = () => {
+    const isAssistant = message.role === "assistant"
+
     if (
-      message.role === "assistant" &&
-      isImagePreviewVisible &&
-      message.content.startsWith("https://image.pollinations.ai/prompt")
+      (isAssistant && isImagePreviewVisible && isImageUrl(message.content)) ||
+      isImageUrl(message.content)
     ) {
-      return (
-        <Image
-          className="cursor-pointer rounded hover:opacity-50"
-          src={message.content}
-          alt="message image"
-          width={300}
-          height={300}
-          onClick={() => {
-            setSelectedImage({
-              messageId: message.id,
-              path: "",
-              base64: "",
-              url: message.content,
-              file: null
-            })
-            setImagePreviewVisible(true)
-          }}
-          loading="lazy"
-        />
-      )
+      return renderImage()
     }
 
     if (
-      message.role === "assistant" &&
-      isAudioPreviewVisible &&
-      message.content.startsWith("https://dict.youdao.com/dictvoice")
+      (isAssistant && isAudioPreviewVisible && isAudioUrl(message.content)) ||
+      isAudioUrl(message.content)
     ) {
-      return (
-        <div className="flex items-center space-x-2">
-          <IconBolt size={20} />
-          <audio
-            ref={audioRef}
-            src={message.content}
-            type="audio/mpeg"
-            controls
-          ></audio>
-        </div>
-      )
+      return renderAudio()
     }
 
     return <MessageMarkdown content={message.content} />

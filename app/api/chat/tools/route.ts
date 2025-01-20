@@ -140,8 +140,7 @@ export async function POST(request: Request) {
         const lastMessage = messages[messages.length - 1]
         const encodedContent = encodeURIComponent(lastMessage.content)
 
-        const fullUrl = `${url}?audio=${encodedContent}&type=${type}`
-        console.log("Full URL:", fullUrl)
+        const fullUrl = `${url}?audio=${encodedContent}&type=${type}&le=${le}`
 
         return new Response(fullUrl, {
           status: 200,

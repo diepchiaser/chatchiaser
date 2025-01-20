@@ -3,11 +3,7 @@ import { LLMID, ModelProvider } from "@/types"
 
 export async function GET() {
   try {
-    const response = await fetch("https://text.pollinations.ai/models", {
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
+    const response = await fetch("https://text.pollinations.ai/models")
 
     if (!response.ok) {
       throw new Error(`Pollinations server is not responding.`)
@@ -24,7 +20,7 @@ export async function GET() {
       provider: "pollination" as ModelProvider,
       hostedId: model.description?.toLowerCase().replace(/\s+/g, "-"),
       platformLink: "https://pollinations.ai",
-      imageInput: false
+      imageInput: model?.vision || false
     }))
 
     return new Response(JSON.stringify(models), {

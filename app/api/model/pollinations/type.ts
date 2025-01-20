@@ -4,4 +4,5 @@ export type Model = {
   censored?: boolean
   description?: string
   baseModel?: boolean
+  vision?: boolean
 }

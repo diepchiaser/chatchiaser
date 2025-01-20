@@ -83,6 +83,9 @@ export type PollinationLLMID =
   | "searchgpt"
   | "evil"
   | "p1"
+  | "llamalight"
+  | "openai-large"
+  | "claude-hybridspace"
 
 export type BlackboxLLMID = "" // No models available
 
