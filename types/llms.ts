@@ -74,6 +74,8 @@ export type PollinationLLMID =
   | "openai"
   | "claude"
   | "deepseek"
+  | "deepseek-r1"
+  | "deepseek-reasoner"
   | "qwen"
   | "qwen-coder"
   | "llama"
@@ -86,6 +88,16 @@ export type PollinationLLMID =
   | "llamalight"
   | "openai-large"
   | "claude-hybridspace"
+  | "gemini"
+  | "gemini-thinking"
+  | "hormoz"
+  | "hypnosis-tracy"
+  | "sur"
+  | "sur-mistral"
+  | "llama-scaleway"
+  | "llama-completion"
+  | "llamaguard"
+  | "open-reasoning"
 
 export type BlackboxLLMID = "" // No models available
 

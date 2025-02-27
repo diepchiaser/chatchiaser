@@ -4,7 +4,7 @@ export const OPENAI: LLM = {
   modelId: "openai",
   modelName: "OpenAI GPT-4o-mini",
   provider: "pollination",
-  hostedId: "OpenAI GPT-4o-mini",
+  hostedId: "openai-gpt-4o-mini",
   platformLink: "",
   imageInput: true
 }
@@ -13,9 +13,18 @@ export const OPENAI_LARGE: LLM = {
   modelId: "openai-large",
   modelName: "OpenAI GPT-4o",
   provider: "pollination",
-  hostedId: "OpenAI GPT-4o",
+  hostedId: "openai-gpt-4o",
   platformLink: "",
   imageInput: true
+}
+
+export const OPENAI_REASONING: LLM = {
+  modelId: "open-reasoning",
+  modelName: "OpenAI o1-mini",
+  provider: "pollination",
+  hostedId: "openai-o1-mini",
+  platformLink: "",
+  imageInput: false
 }
 
 export const QWEN: LLM = {
@@ -52,15 +61,6 @@ export const MISTRAL: LLM = {
   hostedId: "mistral-nemo",
   platformLink: "",
   imageInput: true
-}
-
-export const LLAMA_COMPLETION: LLM = {
-  modelId: "llama",
-  modelName: "Llama 3.1",
-  provider: "pollination",
-  hostedId: "llama-3.1",
-  platformLink: "",
-  imageInput: false
 }
 
 export const UNITY: LLM = {
@@ -100,19 +100,10 @@ export const SEARCHGPT: LLM = {
 }
 
 export const EVIL: LLM = {
-  modelId: "evil",
+  modelId: "",
   modelName: "Evil Mode - Experimental",
   provider: "pollination",
   hostedId: "evil-mode-experimental",
-  platformLink: "",
-  imageInput: false
-}
-
-export const P1: LLM = {
-  modelId: "p1",
-  modelName: "Pollinations 1 (OptiLLM)",
-  provider: "pollination",
-  hostedId: "pollinations-1-optiLLM",
   platformLink: "",
   imageInput: false
 }
@@ -126,13 +117,22 @@ export const DEEPSEEK: LLM = {
   imageInput: false
 }
 
-export const LLAMALIGHT: LLM = {
-  modelId: "llamalight",
-  modelName: "Llama 3.1 8B Instruct",
+export const DEEPSEEK_R1: LLM = {
+  modelId: "deepseek-r1",
+  modelName: "DeepSeek-R1",
   provider: "pollination",
-  hostedId: "llama-3.1-8b-instruct",
+  hostedId: "deepseek-r1",
   platformLink: "",
-  imageInput: true
+  imageInput: false
+}
+
+export const DEEPSEEK_REASONER: LLM = {
+  modelId: "deepseek-reasoner",
+  modelName: "DeepSeek Reasoner",
+  provider: "pollination",
+  hostedId: "deepseek-reasoner",
+  platformLink: "",
+  imageInput: false
 }
 
 export const CLAUDE_HYBRIDSPACE: LLM = {
@@ -144,21 +144,121 @@ export const CLAUDE_HYBRIDSPACE: LLM = {
   imageInput: true
 }
 
+export const LLAMALIGHT: LLM = {
+  modelId: "llamalight",
+  modelName: "Llama 3.1 8B Instruct",
+  provider: "pollination",
+  hostedId: "llama-3.1-8b-instruct",
+  platformLink: "",
+  imageInput: true
+}
+
+export const LLAMA_COMPLETION: LLM = {
+  modelId: "llama-completion",
+  modelName: "Llama 3.1",
+  provider: "pollination",
+  hostedId: "llama-3.1",
+  platformLink: "",
+  imageInput: false
+}
+
+export const LLAMAGUARD: LLM = {
+  modelId: "llamaguard",
+  modelName: "Llamaguard 7B AWQ",
+  provider: "pollination",
+  hostedId: "llamaguard-7b-awq",
+  platformLink: "",
+  imageInput: false
+}
+
+export const GEMINI: LLM = {
+  modelId: "gemini",
+  modelName: "Gemini 2.0 Flash",
+  provider: "pollination",
+  hostedId: "gemini-2.0-flash",
+  platformLink: "",
+  imageInput: true
+}
+
+export const GEMINI_THINKING: LLM = {
+  modelId: "gemini-thinking",
+  modelName: "Gemini 2.0 Flash Thinking",
+  provider: "pollination",
+  hostedId: "gemini-2.0-flash-thinking",
+  platformLink: "",
+  imageInput: true
+}
+
+export const HORMOZ: LLM = {
+  modelId: "hormoz",
+  modelName: "Hormoz 8b by Muhammadreza Haghiri",
+  provider: "pollination",
+  hostedId: "hormoz-8b",
+  platformLink: "",
+  imageInput: false
+}
+
+export const HYPNOSIS_TRACY: LLM = {
+  modelId: "hypnosis-tracy",
+  modelName: "Hypnosis Tracy - Your Self-Help AI",
+  provider: "pollination",
+  hostedId: "hypnosis-tracy",
+  platformLink: "",
+  imageInput: false
+}
+
+export const SUR: LLM = {
+  modelId: "sur",
+  modelName: "Sur AI Assistant",
+  provider: "pollination",
+  hostedId: "sur-ai-assistant",
+  platformLink: "",
+  imageInput: false
+}
+
+export const SUR_MISTRAL: LLM = {
+  modelId: "sur-mistral",
+  modelName: "Sur AI Assistant (Mistral)",
+  provider: "pollination",
+  hostedId: "sur-ai-assistant-mistral",
+  platformLink: "",
+  imageInput: false
+}
+
+export const LLAMA_SCALEWAY: LLM = {
+  modelId: "llama-scaleway",
+  modelName: "Llama (Scaleway)",
+  provider: "pollination",
+  hostedId: "llama-scaleway",
+  platformLink: "",
+  imageInput: true
+}
+
 export const POLLINATION_LLM_LIST: LLM[] = [
   OPENAI,
+  OPENAI_LARGE,
+  OPENAI_REASONING,
   QWEN,
   QWEN_CODER,
   LLAMA,
   MISTRAL,
-  LLAMA_COMPLETION,
   UNITY,
   MIDIJOURNEY,
   RTIST,
   SEARCHGPT,
   EVIL,
-  P1,
   DEEPSEEK,
-  OPENAI_LARGE,
+  DEEPSEEK_R1,
+  DEEPSEEK_REASONER,
+  CLAUDE_HYBRIDSPACE,
   LLAMALIGHT,
-  CLAUDE_HYBRIDSPACE
+  LLAMA_COMPLETION,
+  LLAMAGUARD,
+  GEMINI,
+  GEMINI_THINKING,
+  HORMOZ,
+  HYPNOSIS_TRACY,
+  SUR,
+  SUR_MISTRAL,
+  LLAMA_SCALEWAY
 ]

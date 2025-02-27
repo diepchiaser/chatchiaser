@@ -14,3 +14,4 @@ export type ModelProvider =
   | "ails"
   | "zanity"
   | "airforce"
+  | "modal.com"
