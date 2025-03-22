@@ -12,16 +12,20 @@ export async function POST(request: Request) {
     const headers = {
       "Content-Type": "application/json"
     }
+    const isReasoning = chatSettings.model === "openai-reasoning"
     const body = {
       messages: messages,
       mode: chatSettings.model,
-      reasoning: chatSettings.reasoning || true,
-      frequency_penalty: chatSettings.reasoning ? 0.1 : 0,
-      presence_penalty: chatSettings.reasoning ? 0.1 : 0,
-      temperature: chatSettings.reasoning ? 0.7 : 0.5,
+      reasoning: isReasoning,
+      frequency_penalty: isReasoning ? 0.1 : 0,
+      presence_penalty: isReasoning ? 0.1 : 0,
+      temperature: isReasoning ? 0.7 : 0.5,
       top_p: 1,
-      stream: true
+      stream: true,
+      reasoning_effort: isReasoning ? "high" : undefined
     }
+
+    console.log("body: ", body)
 
     const response = await fetch(url, {
       method: "POST",
