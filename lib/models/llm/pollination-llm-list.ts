@@ -19,21 +19,12 @@ export const OPENAI_LARGE: LLM = {
 }
 
 export const OPENAI_REASONING: LLM = {
-  modelId: "open-reasoning",
-  modelName: "OpenAI o1-mini",
+  modelId: "openai-reasoning",
+  modelName: "OpenAI o3-mini",
   provider: "pollination",
-  hostedId: "openai-o1-mini",
+  hostedId: "openai-o3-mini",
   platformLink: "",
   imageInput: false
-}
-
-export const QWEN: LLM = {
-  modelId: "qwen",
-  modelName: "Qwen 2.5 72B",
-  provider: "pollination",
-  hostedId: "qwen-2.5-72b",
-  platformLink: "",
-  imageInput: true
 }
 
 export const QWEN_CODER: LLM = {
@@ -42,7 +33,7 @@ export const QWEN_CODER: LLM = {
   provider: "pollination",
   hostedId: "qwen-2.5-coder-32b",
   platformLink: "",
-  imageInput: true
+  imageInput: false
 }
 
 export const LLAMA: LLM = {
@@ -56,9 +47,9 @@ export const LLAMA: LLM = {
 
 export const MISTRAL: LLM = {
   modelId: "mistral",
-  modelName: "Mistral Nemo",
+  modelName: "Mistral Small 3.1 2503",
   provider: "pollination",
-  hostedId: "mistral-nemo",
+  hostedId: "mistral-small-3.1-2503",
   platformLink: "",
   imageInput: true
 }
@@ -100,7 +91,7 @@ export const SEARCHGPT: LLM = {
 }
 
 export const EVIL: LLM = {
-  modelId: "",
+  modelId: "evil",
   modelName: "Evil Mode - Experimental",
   provider: "pollination",
   hostedId: "evil-mode-experimental",
@@ -119,29 +110,38 @@ export const DEEPSEEK: LLM = {
 
 export const DEEPSEEK_R1: LLM = {
   modelId: "deepseek-r1",
-  modelName: "DeepSeek-R1",
+  modelName: "DeepSeek-R1 Distill Qwen 32B",
   provider: "pollination",
-  hostedId: "deepseek-r1",
+  hostedId: "deepseek-r1-distill-qwen-32b",
   platformLink: "",
   imageInput: false
 }
 
 export const DEEPSEEK_REASONER: LLM = {
   modelId: "deepseek-reasoner",
-  modelName: "DeepSeek Reasoner",
+  modelName: "DeepSeek R1 - Full",
   provider: "pollination",
-  hostedId: "deepseek-reasoner",
+  hostedId: "deepseek-r1-full",
   platformLink: "",
   imageInput: false
 }
 
-export const CLAUDE_HYBRIDSPACE: LLM = {
-  modelId: "claude-hybridspace",
-  modelName: "Claude Hybridspace",
+export const DEEPSEEK_R1_LLAMA: LLM = {
+  modelId: "deepseek-r1-llama",
+  modelName: "DeepSeek R1 - Llama 70B",
   provider: "pollination",
-  hostedId: "claude-hybridspace",
+  hostedId: "deepseek-r1-llama-70b",
   platformLink: "",
-  imageInput: true
+  imageInput: false
+}
+
+export const QWEN_REASONING: LLM = {
+  modelId: "qwen-reasoning",
+  modelName: "Qwen QWQ 32B - Advanced Reasoning",
+  provider: "pollination",
+  hostedId: "qwen-qwq-32b-advanced-reasoning",
+  platformLink: "",
+  imageInput: false
 }
 
 export const LLAMALIGHT: LLM = {
@@ -151,15 +151,6 @@ export const LLAMALIGHT: LLM = {
   hostedId: "llama-3.1-8b-instruct",
   platformLink: "",
   imageInput: true
-}
-
-export const LLAMA_COMPLETION: LLM = {
-  modelId: "llama-completion",
-  modelName: "Llama 3.1",
-  provider: "pollination",
-  hostedId: "llama-3.1",
-  platformLink: "",
-  imageInput: false
 }
 
 export const LLAMAGUARD: LLM = {
@@ -177,7 +168,7 @@ export const GEMINI: LLM = {
   provider: "pollination",
   hostedId: "gemini-2.0-flash",
   platformLink: "",
-  imageInput: true
+  imageInput: false
 }
 
 export const GEMINI_THINKING: LLM = {
@@ -186,7 +177,7 @@ export const GEMINI_THINKING: LLM = {
   provider: "pollination",
   hostedId: "gemini-2.0-flash-thinking",
   platformLink: "",
-  imageInput: true
+  imageInput: false
 }
 
 export const HORMOZ: LLM = {
@@ -200,9 +191,9 @@ export const HORMOZ: LLM = {
 
 export const HYPNOSIS_TRACY: LLM = {
   modelId: "hypnosis-tracy",
-  modelName: "Hypnosis Tracy - Your Self-Help AI",
+  modelName: "Hypnosis Tracy 7B - Self-help AI assistant",
   provider: "pollination",
-  hostedId: "hypnosis-tracy",
+  hostedId: "hypnosis-tracy-7b-self-help-ai-assistant",
   platformLink: "",
   imageInput: false
 }
@@ -238,7 +229,6 @@ export const POLLINATION_LLM_LIST: LLM[] = [
   OPENAI,
   OPENAI_LARGE,
   OPENAI_REASONING,
-  QWEN,
   QWEN_CODER,
   LLAMA,
   MISTRAL,
@@ -250,9 +240,9 @@ export const POLLINATION_LLM_LIST: LLM[] = [
   DEEPSEEK,
   DEEPSEEK_R1,
   DEEPSEEK_REASONER,
-  CLAUDE_HYBRIDSPACE,
+  DEEPSEEK_R1_LLAMA,
+  QWEN_REASONING,
   LLAMALIGHT,
-  LLAMA_COMPLETION,
   LLAMAGUARD,
   GEMINI,
   GEMINI_THINKING,

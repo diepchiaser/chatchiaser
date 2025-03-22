@@ -1,5 +1,4 @@
 import { ModelProvider } from "."
-import { GPT4oAryahcr, QWENAryahcr } from "@/lib/models/llm/aryahcr-llm-list"
 
 export type LLMID =
   | OpenAILLMID
@@ -98,6 +97,9 @@ export type PollinationLLMID =
   | "llama-completion"
   | "llamaguard"
   | "open-reasoning"
+  | "openai-reasoning"
+  | "deepseek-r1-llama"
+  | "qwen-reasoning"
 
 export type BlackboxLLMID = "" // No models available
 

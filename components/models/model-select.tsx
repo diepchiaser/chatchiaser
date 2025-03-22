@@ -47,34 +47,18 @@ export const ModelSelect: FC<ModelSelectProps> = ({
   useEffect(() => {
     const fetchAiModelsFromProviders = async () => {
       const resPollinations = await fetch("/api/model/pollinations")
-
       return [await resPollinations.json()]
     }
 
     const fetchModels = async () => {
-      const cachedModels = localStorage.getItem("gpt4freeModels")
-      const cachedTime = localStorage.getItem("gpt4freeModelsTimestamp")
+      const [pollinationModels] = await fetchAiModelsFromProviders()
 
-      const isCacheValid =
-        cachedModels &&
-        cachedTime &&
-        Date.now() - Number(cachedTime) < 604800000 // 7 days in milliseconds
+      const newModels = [...gpt4freeModels, ...pollinationModels]
+      const sortedModels = newModels.sort((a, b) =>
+        a.modelName.localeCompare(b.modelName)
+      )
 
-      if (isCacheValid) {
-        setGpt4freeModels(JSON.parse(cachedModels))
-      } else {
-        const [pollinationModels] = await fetchAiModelsFromProviders()
-
-        const newModels = [...gpt4freeModels, ...pollinationModels]
-        const sortedModels = newModels.sort((a, b) =>
-          a.modelName.localeCompare(b.modelName)
-        )
-
-        setGpt4freeModels(sortedModels)
-
-        localStorage.setItem("gpt4freeModels", JSON.stringify(sortedModels))
-        localStorage.setItem("gpt4freeModelsTimestamp", Date.now().toString())
-      }
+      setGpt4freeModels(sortedModels)
     }
 
     fetchModels()
@@ -93,13 +77,13 @@ export const ModelSelect: FC<ModelSelectProps> = ({
     setIsOpen(false)
   }
 
-  const getModelsForProvider = (chatSettings, models) => {
+  const getModelsForProvider = (chatSettings: any, models: any) => {
     const GPT4FREE_MODELS = gpt4freeModels.filter(
       (model, index, self) =>
         index === self.findIndex(m => m.modelId === model.modelId)
     )
 
-    const formatCustomModels = models => {
+    const formatCustomModels = (models: any[]) => {
       return models.map(model => ({
         modelId: model.model_id as LLMID,
         modelName: model.name,

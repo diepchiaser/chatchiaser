@@ -8,6 +8,7 @@ export interface ChatSettings {
   contextLength: number
   includeProfileContext: boolean
   includeWorkspaceInstructions: boolean
+  reasoning: boolean
   embeddingsProvider: "openai" | "local" | "gpt4free"
 }
 

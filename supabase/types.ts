@@ -354,6 +354,7 @@ export type Database = {
           updated_at: string | null
           user_id: string
           workspace_id: string
+          reasoning: boolean
         }
         Insert: {
           assistant_id?: string | null
@@ -372,6 +373,7 @@ export type Database = {
           updated_at?: string | null
           user_id: string
           workspace_id: string
+          reasoning?: boolean
         }
         Update: {
           assistant_id?: string | null

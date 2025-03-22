@@ -180,7 +180,8 @@ export const ChatUI: FC<ChatUIProps> = ({}) => {
       embeddingsProvider: chat.embeddings_provider as
         | "openai"
         | "local"
-        | "gpt4free"
+        | "gpt4free",
+      reasoning: chat.reasoning || false
     })
   }
 
