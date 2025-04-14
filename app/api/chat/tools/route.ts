@@ -14,147 +14,48 @@ import { DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME } from "@/types/airforce-audio"
 import { DEFAULT_YOUDAO_AUDIO_GENERATOR_NAME } from "@/types/youdao-audio"
 
 export async function POST(request: Request) {
-  const json = await request.json()
-  const { chatSettings, messages, selectedTools } = json as {
-    chatSettings: ChatSettings
-    messages: any[]
-    selectedTools: Tables<"tools">[]
-  }
-
-  console.log("Selected tools:", selectedTools)
-
-  const processTool = tool => {
-    const { url, schema } = tool
-
-    console.log("URL:", url)
-    console.log("Schema:", schema)
-
-    if (typeof schema !== "string") {
-      return new Response("Invalid schema format", { status: 400 })
-    }
-
-    try {
-      const parsedSchema = JSON.parse(schema)
-      const { default_parameters: defaultParameters } = parsedSchema || {}
-
-      if (!defaultParameters) {
-        throw new Error("Default parameters are missing.")
-      }
-
-      const { seed, width, height, size, model } = defaultParameters
-      const lastMessage = messages[messages.length - 1]
-      const encodedContent = encodeURIComponent(lastMessage.content)
-
-      let fullUrl
-
-      if (tool.name === DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME) {
-        // `airforce` tool
-        fullUrl = `${url}?prompt=${encodedContent}&${new URLSearchParams({ seed, model, ...(size && { size }) }).toString()}`
-      } else if (tool.name === DEFAULT_POLLINATIONS_IMAGE_GENERATOR_NAME) {
-        // `pollinations` tool
-        fullUrl = `${url}${encodedContent}?${new URLSearchParams({ seed, model, ...(width && { width }), ...(height && { height }) }).toString()}`
-      }
-
-      console.log("Full URL:", fullUrl)
-
-      return new Response(fullUrl, {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      })
-    } catch (error) {
-      console.error("Error processing schema:", error)
-      return new Response("Error processing request", { status: 400 })
-    }
-  }
-
   try {
+    const { chatSettings, messages, selectedTools } = await request.json()
+
     const profile = await getServerProfile()
 
-    const pollinationTool = selectedTools.find(
-      tool => tool.name === DEFAULT_POLLINATIONS_IMAGE_GENERATOR_NAME
-    )
-    if (pollinationTool) {
-      return processTool(pollinationTool)
-    }
-
-    const airforceTool = selectedTools.find(
-      tool => tool.name === DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME
-    )
-    if (airforceTool) {
-      return processTool(airforceTool)
-    }
-
-    const airforceAudioTool = selectedTools.find(
-      tool => tool.name === DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME
-    )
-
-    if (airforceAudioTool) {
-      try {
-        const { url, schema } = airforceAudioTool
-        const parsedSchema = JSON.parse(schema as string)
-        if (!parsedSchema) {
-          throw new Error("Invalid schema format")
+    // Kiểm tra các công cụ hình ảnh và âm thanh
+    for (const toolType of [
+      {
+        name: DEFAULT_POLLINATIONS_IMAGE_GENERATOR_NAME,
+        processor: processImageTool
+      },
+      {
+        name: DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME,
+        processor: processImageTool
+      },
+      {
+        name: DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME,
+        processor: processAudioTool
+      },
+      { name: DEFAULT_YOUDAO_AUDIO_GENERATOR_NAME, processor: processAudioTool }
+    ]) {
+      const tool = selectedTools.find(t => t.name === toolType.name)
+      if (tool) {
+        try {
+          const fullUrl = toolType.processor(tool, messages)
+          return new Response(fullUrl, {
+            status: 200,
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*"
+            }
+          })
+        } catch (error) {
+          console.error(`Error processing ${toolType.name}:`, error)
+          return new Response(`Error processing ${toolType.name}`, {
+            status: 400
+          })
         }
-        const { default_parameters: defaultParameters } = parsedSchema || {}
-
-        if (!defaultParameters) {
-          throw new Error("Default parameters are missing.")
-        }
-
-        const { voice } = defaultParameters
-        const lastMessage = messages[messages.length - 1]
-        const encodedContent = encodeURIComponent(lastMessage.content)
-
-        const fullUrl = `${url}?text=${encodedContent}&voice=${voice}`
-
-        return new Response(fullUrl, {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
-          }
-        })
-      } catch (error) {
-        console.error("Error processing schema:", error)
-        return new Response("Error processing request", { status: 400 })
       }
     }
 
-    const youdaoAudioTool = selectedTools.find(
-      tool => tool.name === DEFAULT_YOUDAO_AUDIO_GENERATOR_NAME
-    )
-    if (youdaoAudioTool) {
-      try {
-        const { url, schema } = youdaoAudioTool
-        const parsedSchema = JSON.parse(schema as string)
-        if (!parsedSchema) {
-          throw new Error("Invalid schema format")
-        }
-        const { default_parameters: defaultParameters } = parsedSchema || {}
-
-        if (!defaultParameters) {
-          throw new Error("Default parameters are missing.")
-        }
-
-        const { type, le } = defaultParameters
-        const lastMessage = messages[messages.length - 1]
-        const encodedContent = encodeURIComponent(lastMessage.content)
-
-        const fullUrl = `${url}?audio=${encodedContent}&type=${type}&le=${le}`
-
-        return new Response(fullUrl, {
-          status: 200,
-          headers: {
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*"
-          }
-        })
-      } catch (error) {
-        console.error("Error processing schema:", error)
-        return new Response("Error processing request", { status: 400 })
-      }
-    }
-
+    // Xử lý OpenAI
     checkApiKey(profile.openai_api_key, "OpenAI")
 
     const openai = new OpenAI({
@@ -162,25 +63,258 @@ export async function POST(request: Request) {
       organization: profile.openai_organization_id
     })
 
-    let allTools: OpenAI.Chat.Completions.ChatCompletionTool[] = []
-    let allRouteMaps = {}
-    let schemaDetails = []
+    const { allTools, schemaDetails } = await processOpenAITools(
+      selectedTools,
+      openai,
+      messages,
+      chatSettings
+    )
 
-    for (const selectedTool of selectedTools) {
+    // Xử lý OpenAI completion
+    const firstResponse = await openai.chat.completions.create({
+      model: chatSettings.model,
+      messages,
+      tools: allTools.length > 0 ? allTools : undefined
+    })
+
+    const message = firstResponse.choices[0].message
+    messages.push(message)
+
+    const toolCalls = message.tool_calls || []
+
+    if (toolCalls.length === 0) {
+      return new Response(message.content, {
+        headers: { "Content-Type": "application/json" }
+      })
+    }
+
+    // Xử lý tool calls
+    const toolResults = await processToolCalls(
+      toolCalls,
+      messages,
+      schemaDetails
+    )
+    messages.push(...toolResults)
+
+    // Xử lý second response
+    const secondResponse = await openai.chat.completions.create({
+      model: chatSettings.model,
+      messages,
+      stream: true
+    })
+
+    const stream = OpenAIStream(secondResponse)
+    return new StreamingTextResponse(stream)
+  } catch (error) {
+    console.error(error)
+    const errorMessage = error.error?.message || "An unexpected error occurred"
+    const errorCode = error.status || 500
+    return new Response(JSON.stringify({ message: errorMessage }), {
+      status: errorCode
+    })
+  }
+}
+
+// Tách hàm xử lý công cụ hình ảnh
+function processImageTool(tool, messages) {
+  const { url, schema } = tool
+
+  if (typeof schema !== "string") {
+    throw new Error("Invalid schema format")
+  }
+
+  const parsedSchema = JSON.parse(schema)
+  const { default_parameters: defaultParameters } = parsedSchema || {}
+
+  if (!defaultParameters) {
+    throw new Error("Default parameters are missing")
+  }
+
+  const { seed, width, height, size, model } = defaultParameters
+  const lastMessage = messages[messages.length - 1]
+  const encodedContent = encodeURIComponent(lastMessage.content)
+
+  let fullUrl
+
+  if (tool.name === DEFAULT_AIRFORCE_IMAGE_GENERATOR_NAME) {
+    fullUrl = `${url}?prompt=${encodedContent}&${new URLSearchParams({
+      seed,
+      model,
+      ...(size && { size })
+    }).toString()}`
+  } else if (tool.name === DEFAULT_POLLINATIONS_IMAGE_GENERATOR_NAME) {
+    fullUrl = `${url}${encodedContent}?${new URLSearchParams({
+      seed,
+      model,
+      ...(width && { width }),
+      ...(height && { height })
+    }).toString()}`
+  }
+
+  return fullUrl
+}
+
+// Tách hàm xử lý công cụ âm thanh
+function processAudioTool(tool, messages) {
+  const { url, schema } = tool
+  const parsedSchema = JSON.parse(schema as string)
+
+  if (!parsedSchema) {
+    throw new Error("Invalid schema format")
+  }
+
+  const { default_parameters: defaultParameters } = parsedSchema || {}
+
+  if (!defaultParameters) {
+    throw new Error("Default parameters are missing")
+  }
+
+  const lastMessage = messages[messages.length - 1]
+  const encodedContent = encodeURIComponent(lastMessage.content)
+
+  if (tool.name === DEFAULT_AIRFORCE_AUDIO_GENERATOR_NAME) {
+    const { voice } = defaultParameters
+    return `${url}?text=${encodedContent}&voice=${voice}`
+  } else if (tool.name === DEFAULT_YOUDAO_AUDIO_GENERATOR_NAME) {
+    const { type, le } = defaultParameters
+    return `${url}?audio=${encodedContent}&type=${type}&le=${le}`
+  }
+
+  throw new Error("Unknown audio tool")
+}
+
+// Xử lý các tool calls
+async function processToolCalls(toolCalls, messages, schemaDetails) {
+  const toolResults = await Promise.all(
+    toolCalls.map(async toolCall => {
+      const functionCall = toolCall.function
+      const functionName = functionCall.name
+      const argumentsString = toolCall.function.arguments.trim()
+      const parsedArgs = JSON.parse(argumentsString)
+
+      // Tìm schema phù hợp
+      const schemaDetail = schemaDetails.find(detail =>
+        Object.values(detail.routeMap).includes(functionName)
+      )
+
+      if (!schemaDetail) {
+        throw new Error(`Function ${functionName} not found in any schema`)
+      }
+
+      const pathTemplate = Object.keys(schemaDetail.routeMap).find(
+        key => schemaDetail.routeMap[key] === functionName
+      )
+
+      if (!pathTemplate) {
+        throw new Error(`Path for function ${functionName} not found`)
+      }
+
+      const path = pathTemplate.replace(/:(\w+)/g, (_, paramName) => {
+        const value = parsedArgs.parameters[paramName]
+        if (!value) {
+          throw new Error(
+            `Parameter ${paramName} not found for function ${functionName}`
+          )
+        }
+        return encodeURIComponent(value)
+      })
+
+      // Xử lý fetch request
+      let data = await fetchToolData(schemaDetail, path, parsedArgs)
+
+      return {
+        tool_call_id: toolCall.id,
+        role: "tool",
+        name: functionName,
+        content: JSON.stringify(data)
+      }
+    })
+  )
+
+  return toolResults
+}
+
+// Tách hàm xử lý fetch
+async function fetchToolData(schemaDetail, path, parsedArgs) {
+  // Xử lý request in body hoặc query
+  if (schemaDetail.requestInBody) {
+    // Xử lý headers
+    let headers = { "Content-Type": "application/json" }
+
+    if (schemaDetail.headers && typeof schemaDetail.headers === "string") {
+      try {
+        headers = { ...headers, ...JSON.parse(schemaDetail.headers) }
+      } catch (error) {
+        console.error("Error parsing headers:", error)
+      }
+    }
+
+    const fullUrl = schemaDetail.url + path
+    const bodyContent = parsedArgs.requestBody || parsedArgs
+
+    const response = await fetch(fullUrl, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(bodyContent)
+    })
+
+    if (!response.ok) {
+      return { error: response.statusText }
+    }
+
+    return await response.json()
+  } else {
+    // Xử lý query
+    const queryParams = new URLSearchParams(parsedArgs.parameters).toString()
+    const fullUrl =
+      schemaDetail.url + path + (queryParams ? "?" + queryParams : "")
+
+    let headers = {}
+
+    if (schemaDetail.headers && typeof schemaDetail.headers === "string") {
+      try {
+        headers = JSON.parse(schemaDetail.headers)
+      } catch (error) {
+        console.error("Error parsing headers:", error)
+      }
+    }
+
+    const response = await fetch(fullUrl, {
+      method: "GET",
+      headers
+    })
+
+    if (!response.ok) {
+      return { error: response.statusText }
+    }
+
+    return await response.json()
+  }
+}
+
+// Xử lý công cụ OpenAI và schemas
+async function processOpenAITools(
+  selectedTools,
+  openai,
+  messages,
+  chatSettings
+) {
+  let allTools = []
+  let allRouteMaps = {}
+  let schemaDetails = []
+
+  await Promise.all(
+    selectedTools.map(async selectedTool => {
       try {
         const convertedSchema = await openapiToFunctions(
           JSON.parse(selectedTool.schema as string)
         )
-        const tools = convertedSchema.functions || []
-        allTools = allTools.concat(tools)
+        allTools = allTools.concat(convertedSchema.functions || [])
 
-        const routeMap = convertedSchema.routes.reduce(
-          (map: Record<string, string>, route) => {
-            map[route.path.replace(/{(\w+)}/g, ":$1")] = route.operationId
-            return map
-          },
-          {}
-        )
+        const routeMap = convertedSchema.routes.reduce((map, route) => {
+          map[route.path.replace(/{(\w+)}/g, ":$1")] = route.operationId
+          return map
+        }, {})
 
         allRouteMaps = { ...allRouteMaps, ...routeMap }
 
@@ -192,165 +326,11 @@ export async function POST(request: Request) {
           routeMap,
           requestInBody: convertedSchema.routes[0].requestInBody
         })
-      } catch (error: any) {
+      } catch (error) {
         console.error("Error converting schema", error)
       }
-    }
-
-    const firstResponse = await openai.chat.completions.create({
-      model: chatSettings.model as ChatCompletionCreateParamsBase["model"],
-      messages,
-      tools: allTools.length > 0 ? allTools : undefined
     })
+  )
 
-    const message = firstResponse.choices[0].message
-    messages.push(message)
-    const toolCalls = message.tool_calls || []
-
-    if (toolCalls.length === 0) {
-      return new Response(message.content, {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      })
-    }
-
-    if (toolCalls.length > 0) {
-      for (const toolCall of toolCalls) {
-        const functionCall = toolCall.function
-        const functionName = functionCall.name
-        const argumentsString = toolCall.function.arguments.trim()
-        const parsedArgs = JSON.parse(argumentsString)
-
-        // Find the schema detail that contains the function name
-        const schemaDetail = schemaDetails.find(detail =>
-          Object.values(detail.routeMap).includes(functionName)
-        )
-
-        if (!schemaDetail) {
-          throw new Error(`Function ${functionName} not found in any schema`)
-        }
-
-        const pathTemplate = Object.keys(schemaDetail.routeMap).find(
-          key => schemaDetail.routeMap[key] === functionName
-        )
-
-        if (!pathTemplate) {
-          throw new Error(`Path for function ${functionName} not found`)
-        }
-
-        const path = pathTemplate.replace(/:(\w+)/g, (_, paramName) => {
-          const value = parsedArgs.parameters[paramName]
-          if (!value) {
-            throw new Error(
-              `Parameter ${paramName} not found for function ${functionName}`
-            )
-          }
-          return encodeURIComponent(value)
-        })
-
-        if (!path) {
-          throw new Error(`Path for function ${functionName} not found`)
-        }
-
-        // Determine if the request should be in the body or as a query
-        const isRequestInBody = schemaDetail.requestInBody
-        let data = {}
-
-        if (isRequestInBody) {
-          // If the type is set to body
-          let headers = {
-            "Content-Type": "application/json"
-          }
-
-          // Check if custom headers are set
-          const customHeaders = schemaDetail.headers // Moved this line up to the loop
-          // Check if custom headers are set and are of type string
-          if (customHeaders && typeof customHeaders === "string") {
-            let parsedCustomHeaders = JSON.parse(customHeaders) as Record<
-              string,
-              string
-            >
-
-            headers = {
-              ...headers,
-              ...parsedCustomHeaders
-            }
-          }
-
-          const fullUrl = schemaDetail.url + path
-
-          const bodyContent = parsedArgs.requestBody || parsedArgs
-
-          const requestInit = {
-            method: "POST",
-            headers,
-            body: JSON.stringify(bodyContent) // Use the extracted requestBody or the entire parsedArgs
-          }
-
-          const response = await fetch(fullUrl, requestInit)
-
-          if (!response.ok) {
-            data = {
-              error: response.statusText
-            }
-          } else {
-            data = await response.json()
-          }
-        } else {
-          // If the type is set to query
-          const queryParams = new URLSearchParams(
-            parsedArgs.parameters
-          ).toString()
-          const fullUrl =
-            schemaDetail.url + path + (queryParams ? "?" + queryParams : "")
-
-          let headers = {}
-
-          // Check if custom headers are set
-          const customHeaders = schemaDetail.headers
-          if (customHeaders && typeof customHeaders === "string") {
-            headers = JSON.parse(customHeaders)
-          }
-
-          const response = await fetch(fullUrl, {
-            method: "GET",
-            headers: headers
-          })
-
-          if (!response.ok) {
-            data = {
-              error: response.statusText
-            }
-          } else {
-            data = await response.json()
-          }
-        }
-
-        messages.push({
-          tool_call_id: toolCall.id,
-          role: "tool",
-          name: functionName,
-          content: JSON.stringify(data)
-        })
-      }
-    }
-
-    const secondResponse = await openai.chat.completions.create({
-      model: chatSettings.model as ChatCompletionCreateParamsBase["model"],
-      messages,
-      stream: true
-    })
-
-    const stream = OpenAIStream(secondResponse)
-
-    return new StreamingTextResponse(stream)
-  } catch (error: any) {
-    console.error(error)
-    const errorMessage = error.error?.message || "An unexpected error occurred"
-    const errorCode = error.status || 500
-    return new Response(JSON.stringify({ message: errorMessage }), {
-      status: errorCode
-    })
-  }
+  return { allTools, allRouteMaps, schemaDetails }
 }
