@@ -8,24 +8,20 @@ export async function POST(request: Request) {
   }
 
   try {
-    const url = "https://text.pollinations.ai/"
+    const url = "https://text.pollinations.ai/openai" // Updated to use OpenAI compatible endpoint
     const headers = {
       "Content-Type": "application/json"
     }
     const isReasoning = chatSettings.model === "openai-reasoning"
     const body = {
-      messages: messages,
-      mode: chatSettings.model,
-      reasoning: isReasoning,
-      frequency_penalty: isReasoning ? 0.1 : 0,
-      presence_penalty: isReasoning ? 0.1 : 0,
-      temperature: isReasoning ? 0.7 : 0.5,
-      top_p: 1,
+      model: chatSettings.model, // Model identifier (openai, mistral, etc.)
+      messages: messages, // Array of message objects
+      temperature: chatSettings.temperature ?? (isReasoning ? 0.7 : 0),
+      top_p: chatSettings.top_p ?? 1,
       stream: true,
-      reasoning_effort: isReasoning ? "high" : undefined
+      private: false, // Optional: prevent response from appearing in public feed
+      reasoning_effort: isReasoning ? "high" : undefined // Optional: for o3-mini model
     }
-
-    console.log("body: ", body)
 
     const response = await fetch(url, {
       method: "POST",

@@ -100,6 +100,9 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.27.2",
+    "@babel/core": "^7.27.1",
+    "@babel/preset-env": "^7.27.2",
     "@next/bundle-analyzer": "^14.2.22",
     "@tailwindcss/typography": "^0.5.15",
     "@testing-library/jest-dom": "^6.6.3",
@@ -112,6 +115,7 @@
     "@types/react-syntax-highlighter": "^15.5.13",
     "@types/uuid": "^9.0.8",
     "autoprefixer": "^10.4.20",
+    "babel-loader": "^10.0.0",
     "clsx": "^2.1.1",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.22",
@@ -126,6 +130,8 @@
     "tailwindcss": "^3.4.17",
     "tailwindcss-animate": "^1.0.7",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
   }
 }

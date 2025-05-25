@@ -10,6 +10,8 @@ export interface ChatSettings {
   includeWorkspaceInstructions: boolean
   reasoning: boolean
   embeddingsProvider: "openai" | "local" | "gpt4free"
+  top_p: number
+  top_k: number
 }
 
 export interface ChatPayload {
