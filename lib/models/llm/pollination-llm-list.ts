@@ -2,29 +2,20 @@ import { LLM } from "@/types"
 
 export const OPENAI: LLM = {
   modelId: "openai",
-  modelName: "OpenAI GPT-4o-mini",
+  modelName: "OpenAI GPT-4.1-mini",
   provider: "pollination",
-  hostedId: "openai-gpt-4o-mini",
-  platformLink: "",
+  hostedId: "openai",
+  platformLink: "https://pollinations.ai",
   imageInput: true
 }
 
 export const OPENAI_LARGE: LLM = {
   modelId: "openai-large",
-  modelName: "OpenAI GPT-4o",
+  modelName: "OpenAI GPT-4.1",
   provider: "pollination",
-  hostedId: "openai-gpt-4o",
-  platformLink: "",
+  hostedId: "openai-large",
+  platformLink: "https://pollinations.ai",
   imageInput: true
-}
-
-export const OPENAI_REASONING: LLM = {
-  modelId: "openai-reasoning",
-  modelName: "OpenAI o3-mini",
-  provider: "pollination",
-  hostedId: "openai-o3-mini",
-  platformLink: "",
-  imageInput: false
 }
 
 export const QWEN_CODER: LLM = {
@@ -40,26 +31,26 @@ export const LLAMA: LLM = {
   modelId: "llama",
   modelName: "Llama 3.3 70B",
   provider: "pollination",
-  hostedId: "llama-3.3-70b",
-  platformLink: "",
+  hostedId: "llama",
+  platformLink: "https://pollinations.ai",
   imageInput: false
 }
 
 export const MISTRAL: LLM = {
   modelId: "mistral",
-  modelName: "Mistral Small 3.1 2503",
+  modelName: "Mistral Small 3.1 24B",
   provider: "pollination",
-  hostedId: "mistral-small-3.1-2503",
-  platformLink: "",
-  imageInput: true
+  hostedId: "mistral",
+  platformLink: "https://pollinations.ai",
+  imageInput: false
 }
 
 export const UNITY: LLM = {
   modelId: "unity",
-  modelName: "Unity with Mistral Large by Unity AI Lab",
+  modelName: "Unity Unrestricted Agent (Mistral Small 3.1)",
   provider: "pollination",
-  hostedId: "unity-with-mistral-large-by-unity-ai-lab",
-  platformLink: "",
+  hostedId: "unity",
+  platformLink: "https://pollinations.ai",
   imageInput: false
 }
 
@@ -108,15 +99,6 @@ export const DEEPSEEK: LLM = {
   imageInput: false
 }
 
-export const DEEPSEEK_R1: LLM = {
-  modelId: "deepseek-r1",
-  modelName: "DeepSeek-R1 Distill Qwen 32B",
-  provider: "pollination",
-  hostedId: "deepseek-r1-distill-qwen-32b",
-  platformLink: "",
-  imageInput: false
-}
-
 export const DEEPSEEK_REASONER: LLM = {
   modelId: "deepseek-reasoner",
   modelName: "DeepSeek R1 - Full",
@@ -126,56 +108,11 @@ export const DEEPSEEK_REASONER: LLM = {
   imageInput: false
 }
 
-export const DEEPSEEK_R1_LLAMA: LLM = {
-  modelId: "deepseek-r1-llama",
-  modelName: "DeepSeek R1 - Llama 70B",
-  provider: "pollination",
-  hostedId: "deepseek-r1-llama-70b",
-  platformLink: "",
-  imageInput: false
-}
-
 export const QWEN_REASONING: LLM = {
   modelId: "qwen-reasoning",
   modelName: "Qwen QWQ 32B - Advanced Reasoning",
   provider: "pollination",
   hostedId: "qwen-qwq-32b-advanced-reasoning",
-  platformLink: "",
-  imageInput: false
-}
-
-export const LLAMALIGHT: LLM = {
-  modelId: "llamalight",
-  modelName: "Llama 3.1 8B Instruct",
-  provider: "pollination",
-  hostedId: "llama-3.1-8b-instruct",
-  platformLink: "",
-  imageInput: true
-}
-
-export const LLAMAGUARD: LLM = {
-  modelId: "llamaguard",
-  modelName: "Llamaguard 7B AWQ",
-  provider: "pollination",
-  hostedId: "llamaguard-7b-awq",
-  platformLink: "",
-  imageInput: false
-}
-
-export const GEMINI: LLM = {
-  modelId: "gemini",
-  modelName: "Gemini 2.0 Flash",
-  provider: "pollination",
-  hostedId: "gemini-2.0-flash",
-  platformLink: "",
-  imageInput: false
-}
-
-export const GEMINI_THINKING: LLM = {
-  modelId: "gemini-thinking",
-  modelName: "Gemini 2.0 Flash Thinking",
-  provider: "pollination",
-  hostedId: "gemini-2.0-flash-thinking",
   platformLink: "",
   imageInput: false
 }
@@ -207,48 +144,100 @@ export const SUR: LLM = {
   imageInput: false
 }
 
-export const SUR_MISTRAL: LLM = {
-  modelId: "sur-mistral",
-  modelName: "Sur AI Assistant (Mistral)",
+export const OPENAI_FAST: LLM = {
+  modelId: "openai-fast",
+  modelName: "OpenAI GPT-4.1-nano",
   provider: "pollination",
-  hostedId: "sur-ai-assistant-mistral",
-  platformLink: "",
+  hostedId: "openai-fast",
+  platformLink: "https://pollinations.ai",
   imageInput: false
 }
 
-export const LLAMA_SCALEWAY: LLM = {
-  modelId: "llama-scaleway",
-  modelName: "Llama (Scaleway)",
+export const OPENAI_ROBLOX: LLM = {
+  modelId: "openai-roblox",
+  modelName: "OpenAI GPT-4.1-mini for Roblox",
   provider: "pollination",
-  hostedId: "llama-scaleway",
-  platformLink: "",
-  imageInput: true
+  hostedId: "openai-roblox",
+  platformLink: "https://pollinations.ai",
+  imageInput: false
+}
+
+export const LLAMASCOUT: LLM = {
+  modelId: "llamascout",
+  modelName: "Llama 4 Scout 17B",
+  provider: "pollination",
+  hostedId: "llamascout",
+  platformLink: "https://pollinations.ai",
+  imageInput: false
+}
+
+export const MIREXA: LLM = {
+  modelId: "mirexa",
+  modelName: "Mirexa AI Companion (GPT-4.1)",
+  provider: "pollination",
+  hostedId: "mirexa",
+  platformLink: "https://pollinations.ai",
+  imageInput: false
+}
+
+export const PHI: LLM = {
+  modelId: "phi",
+  modelName: "Phi-4 Instruct",
+  provider: "pollination",
+  hostedId: "phi",
+  platformLink: "https://pollinations.ai",
+  imageInput: false
+}
+
+export const GROK: LLM = {
+  modelId: "grok",
+  modelName: "xAi Grok-3 Mini",
+  provider: "pollination",
+  hostedId: "grok",
+  platformLink: "https://pollinations.ai",
+  imageInput: false
+}
+
+export const BIDARA: LLM = {
+  modelId: "bidara",
+  modelName: "BIDARA - Biomimetic Designer and Research Assistant by NASA",
+  provider: "pollination",
+  hostedId: "bidara",
+  platformLink: "https://pollinations.ai",
+  imageInput: false
+}
+
+export const OPENAI_AUDIO: LLM = {
+  modelId: "openai-audio",
+  modelName: "OpenAI GPT-4o-audio-preview",
+  provider: "pollination",
+  hostedId: "openai-audio",
+  platformLink: "https://pollinations.ai",
+  imageInput: false
 }
 
 export const POLLINATION_LLM_LIST: LLM[] = [
   OPENAI,
+  OPENAI_FAST,
   OPENAI_LARGE,
-  OPENAI_REASONING,
+  OPENAI_ROBLOX,
   QWEN_CODER,
   LLAMA,
+  LLAMASCOUT,
   MISTRAL,
   UNITY,
+  MIREXA,
   MIDIJOURNEY,
   RTIST,
   SEARCHGPT,
   EVIL,
-  DEEPSEEK,
-  DEEPSEEK_R1,
   DEEPSEEK_REASONER,
-  DEEPSEEK_R1_LLAMA,
-  QWEN_REASONING,
-  LLAMALIGHT,
-  LLAMAGUARD,
-  GEMINI,
-  GEMINI_THINKING,
+  PHI,
   HORMOZ,
   HYPNOSIS_TRACY,
+  DEEPSEEK,
+  GROK,
   SUR,
-  SUR_MISTRAL,
-  LLAMA_SCALEWAY
+  BIDARA,
+  OPENAI_AUDIO
 ]

@@ -12,15 +12,15 @@ export async function POST(request: Request) {
     const headers = {
       "Content-Type": "application/json"
     }
-    const isReasoning = chatSettings.model === "openai-reasoning"
+
     const body = {
       model: chatSettings.model, // Model identifier (openai, mistral, etc.)
       messages: messages, // Array of message objects
-      temperature: chatSettings.temperature ?? (isReasoning ? 0.7 : 0),
+      temperature: chatSettings.temperature ?? 0.7,
       top_p: chatSettings.top_p ?? 1,
       stream: true,
       private: false, // Optional: prevent response from appearing in public feed
-      reasoning_effort: isReasoning ? "high" : undefined // Optional: for o3-mini model
+      reasoning_effort: chatSettings.reasoning ? "high" : "low" // Optional: for o3-mini model
     }
 
     const response = await fetch(url, {
@@ -63,19 +63,25 @@ export async function POST(request: Request) {
             }
 
             const text = decoder.decode(value, { stream: true })
-            // Process the text to extract only content
-            const lines = text.split("\n")
+            buffer += text
+            // Process the buffer to extract complete messages
+            const lines = buffer.split("\n")
+            buffer = lines.pop() || "" // Keep any incomplete line in the buffer
+
             for (const line of lines) {
-              if (line.startsWith("data: ") && line !== "data: [DONE]") {
+              const trimmedLine = line.trim()
+              if (trimmedLine.startsWith("data: ")) {
+                const data = trimmedLine.slice(5).trim()
+                if (data === "[DONE]") continue
+
                 try {
-                  const parsed = JSON.parse(line.slice(6))
+                  const parsed = JSON.parse(data)
                   if (parsed.choices?.[0]?.delta?.content) {
                     const content = parsed.choices[0].delta.content
                     controller.enqueue(encoder.encode(content))
-                    await new Promise(resolve => setTimeout(resolve, 20))
                   }
                 } catch (e) {
-                  // Skip invalid JSON
+                  console.warn("Failed to parse JSON:", e)
                   continue
                 }
               }
